@@ -7,11 +7,12 @@ import CookieBanner from "./CookieBanner";
 import Instagram from "../assets/instagram.svg?react";
 import Facebook from "../assets/facebook.svg?react";
 import { BusinessHour, Holiday, Settings } from "../types";
-import { API_BASE_URL } from "../constants/constants";
 
 const Layout: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language === "zh";
+  console.log(i18n.language);
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [settings, setSettings] = useState<Settings>({});
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
@@ -46,9 +47,9 @@ const Layout: React.FC = () => {
   const loadSettings = async () => {
     try {
       const [settingsRes, businessHoursRes, holidaysRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/settings`),
-        fetch(`${API_BASE_URL}/business-hours`),
-        fetch(`${API_BASE_URL}/holidays`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/settings`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/business-hours`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/holidays`),
       ]);
 
       const settingsData = await settingsRes.json();

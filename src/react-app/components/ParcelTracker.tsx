@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Package, Search } from "lucide-react";
-import { API_BASE_URL } from "../constants/constants";
 import { Carrier } from "../types";
 
 const ParcelTracker: React.FC = () => {
@@ -18,7 +17,9 @@ const ParcelTracker: React.FC = () => {
 
   const loadCarriers = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/carriers`);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/carriers`
+      );
       const data = await response.json();
 
       if (data.success && data.data.length > 0) {

@@ -109,5 +109,21 @@
     "legal": "Note Legali",
     "privacy_link": "Privacy Policy",
     "terms_link": "Termini di Servizio"
+  },
+  "cookie": {
+    "title": "Cookie e Privacy",
+    "subtitle": "Trasparenza totale sui tuoi dati",
+    "text": "Questo sito web utilizza cookie essenziali per garantire il corretto funzionamento e migliorare la tua esperienza. Siamo ospitati su Cloudflare e raccogliamo solo dati anonimi sui visitatori per migliorare i nostri servizi.",
+    "accept": "Accetta tutto",
+    "reject": "Rifiuta",
+    "show_details": "Mostra dettagli",
+    "hide_details": "Nascondi dettagli",
+    "no_third_party": "Nessun cookie di terze parti",
+    "details_title": "Cosa raccogliamo:",
+    "detail_essential": "Cookie essenziali: Necessari per il funzionamento del sito (preferenze lingua, consenso cookie)",
+    "detail_analytics": "Dati analitici anonimi: Visite alle pagine, tempo di permanenza, dispositivo utilizzato",
+    "detail_cloudflare": "Infrastruttura Cloudflare: Hosting sicuro e protetto, senza tracciamento pubblicitario",
+    "detail_no_tracking": "Nessun tracciamento cross-site o vendita di dati a terzi",
+    "cloudflare_privacy": "Informativa Privacy Cloudflare"
   }
 }

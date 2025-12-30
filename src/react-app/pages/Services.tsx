@@ -1,22 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
-import DynamicIcon, { IconName } from "../components/DynamicIcon";
-
-const API_BASE_URL = "/api";
-
-interface ServiceItem {
-  id: number;
-  category: string;
-  icon_name: IconName;
-  title_it: string;
-  title_cn: string;
-  description_it?: string;
-  description_cn?: string;
-  price_display?: string;
-  order: number;
-  is_active: number;
-}
+import DynamicIcon from "../components/DynamicIcon";
+import { ServiceItem } from "../types";
 
 const Services: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -30,7 +16,9 @@ const Services: React.FC = () => {
 
   const loadServices = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/services`);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/services`
+      );
       const data = await response.json();
 
       if (data.success) {

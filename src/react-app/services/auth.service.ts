@@ -33,7 +33,7 @@ interface ApiResponse<T = any> {
 // =========================================================
 // 配置
 // =========================================================
-const API_BASE_URL = "/api";
+
 const TOKEN_REFRESH_BEFORE_EXPIRY = 2 * 60 * 1000; // 提前 2 分钟刷新
 const ACCESS_TOKEN = "access_token";
 const REFRESH_TOKEN = "refresh_token";
@@ -159,14 +159,17 @@ export async function login(
   password: string
 ): Promise<LoginResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ username, password }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/login`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ username, password }),
+      }
+    );
 
     const data: LoginResponse = await response.json();
 
@@ -204,14 +207,17 @@ export async function refreshAccessToken(): Promise<RefreshResponse> {
       };
     }
 
-    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({ refreshToken }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ refreshToken }),
+      }
+    );
 
     const data: RefreshResponse = await response.json();
 
@@ -246,7 +252,7 @@ export async function logout(): Promise<void> {
   try {
     const token = getAccessToken();
     if (token) {
-      await fetch(`${API_BASE_URL}/auth/logout`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/auth/logout`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -276,12 +282,15 @@ export async function verifyToken(): Promise<ApiResponse> {
       };
     }
 
-    const response = await fetch(`${API_BASE_URL}/auth/verify`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/verify`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      }
+    );
 
     return await response.json();
   } catch (error) {
@@ -308,12 +317,15 @@ export async function getCurrentUser(): Promise<ApiResponse> {
       };
     }
 
-    const response = await fetch(`${API_BASE_URL}/auth/me`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      credentials: "include",
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_BASE_URL}/auth/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      }
+    );
 
     return await response.json();
   } catch (error) {
@@ -348,7 +360,9 @@ export async function authenticatedFetch(
   }
 
   // 确保 URL 以 /api 开头
-  const fullUrl = url.startsWith("/api") ? url : `${API_BASE_URL}${url}`;
+  const fullUrl = url.startsWith("/api")
+    ? url
+    : `${import.meta.env.VITE_API_BASE_URL}${url}`;
 
   const response = await fetch(fullUrl, {
     ...options,

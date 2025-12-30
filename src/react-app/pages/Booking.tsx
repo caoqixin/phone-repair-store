@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Calendar, CheckCircle, Smartphone, Loader2 } from "lucide-react";
 
-const API_BASE_URL = "/api";
-
 const Booking: React.FC = () => {
   const { t } = useTranslation();
   const [submitted, setSubmitted] = useState(false);
@@ -29,19 +27,22 @@ const Booking: React.FC = () => {
         ? `${formData.preferredDate}T${formData.preferredTime}:00Z`
         : `${formData.preferredDate}T10:00:00Z`; // 默认上午10点
 
-      const response = await fetch(`${API_BASE_URL}/bookings`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          customerName: formData.customerName,
-          phoneNumber: formData.phoneNumber,
-          deviceModel: formData.deviceModel,
-          problemDescription: formData.problemDescription,
-          bookingTime: bookingDateTime,
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/bookings`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            customerName: formData.customerName,
+            phoneNumber: formData.phoneNumber,
+            deviceModel: formData.deviceModel,
+            problemDescription: formData.problemDescription,
+            bookingTime: bookingDateTime,
+          }),
+        }
+      );
 
       const data = await response.json();
 

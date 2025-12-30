@@ -11,7 +11,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { BusinessHour, Holiday, Settings } from "../types";
-import { API_BASE_URL } from "../constants/constants";
 
 const Contact: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -48,9 +47,9 @@ const Contact: React.FC = () => {
   const loadData = async () => {
     try {
       const [settingsRes, businessHoursRes, holidaysRes] = await Promise.all([
-        fetch(`${API_BASE_URL}/settings`),
-        fetch(`${API_BASE_URL}/business-hours`),
-        fetch(`${API_BASE_URL}/holidays`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/settings`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/business-hours`),
+        fetch(`${import.meta.env.VITE_API_BASE_URL}/holidays`),
       ]);
 
       const settingsData = await settingsRes.json();
@@ -80,13 +79,16 @@ const Contact: React.FC = () => {
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/contacts`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/contacts`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await response.json();
 

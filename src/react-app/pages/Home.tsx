@@ -13,7 +13,6 @@ import { Link } from "react-router";
 import ParcelTracker from "../components/ParcelTracker";
 import ServiceCard from "../components/ServiceCard";
 import { BusinessHour, Holiday, ServiceItem, Settings } from "../types";
-import { API_BASE_URL } from "../constants/constants";
 
 const Home: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -43,10 +42,10 @@ const Home: React.FC = () => {
     try {
       const [settingsRes, servicesRes, businessHoursRes, holidaysRes] =
         await Promise.all([
-          fetch(`${API_BASE_URL}/settings`),
-          fetch(`${API_BASE_URL}/services`),
-          fetch(`${API_BASE_URL}/business-hours`),
-          fetch(`${API_BASE_URL}/holidays`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/settings`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/services`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/business-hours`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/holidays`),
         ]);
 
       const settingsData = await settingsRes.json();
@@ -84,7 +83,9 @@ const Home: React.FC = () => {
       );
       setBusinessStatus({
         isOpen: false,
-        message: `放假中 - ${holiday?.name}`,
+        message: isZh
+          ? `放假中 - ${holiday?.name}`
+          : `Chiuso per festività - ${holiday?.name}`,
         type: "holiday",
       });
       return;
@@ -96,7 +97,7 @@ const Home: React.FC = () => {
     if (!todayHours || !todayHours.is_open) {
       setBusinessStatus({
         isOpen: false,
-        message: "今日休息",
+        message: isZh ? "今日休息" : "Chiuso oggi",
         type: "closed",
       });
       return;
@@ -126,7 +127,7 @@ const Home: React.FC = () => {
     if (isCurrentlyOpen) {
       setBusinessStatus({
         isOpen: true,
-        message: "营业中",
+        message: isZh ? "营业中" : "Aperto",
         type: "open",
       });
     } else {
@@ -139,13 +140,15 @@ const Home: React.FC = () => {
       ) {
         setBusinessStatus({
           isOpen: false,
-          message: `午休中 (${todayHours.afternoon_open} 开门)`,
+          message: isZh
+            ? `午休中 (${todayHours.afternoon_open} 开门)`
+            : `Pausa pranzo (Riapre ${todayHours.afternoon_open})`,
           type: "closed",
         });
       } else {
         setBusinessStatus({
           isOpen: false,
-          message: "今日已关门",
+          message: isZh ? "今日已关门" : "Chiuso",
           type: "closed",
         });
       }

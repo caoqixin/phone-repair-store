@@ -1,64 +1,51 @@
-// 1. 按需导入具体的图标组件
-// 这里的导入决定了最终打包体积，没导入的就不会被打包
-import {
-  Wrench,
-  Smartphone,
-  Battery,
-  Cpu,
-  Wifi,
-  Archive,
-  CreditCard,
-  Truck,
-  Star,
-  ShieldCheck,
-  Zap,
-  Headphones,
-  Laptop,
-  Tablet,
-  HelpCircle, // 导入一个默认图标作为回退
-  type LucideProps,
-} from "lucide-react";
+import React from "react";
+import { icons, type LucideProps } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
-// 2. 建立图标映射表
-// Key 是数据库存的字符串，Value 是实际的组件
-export const ICON_MAP = {
-  Wrench,
-  Smartphone,
-  Battery,
-  Cpu,
-  Wifi,
-  Archive,
-  CreditCard,
-  Truck,
-  Star,
-  ShieldCheck,
-  Zap,
-  Headphones,
-  Laptop,
-  Tablet,
-};
-
-// 3. 自动从映射表中提取 Key 类型
-// 类型等同于: 'Wrench' | 'Smartphone' | 'Battery' ...
-export type IconName = keyof typeof ICON_MAP;
+// 导出所有可用的图标名称类型
+export type IconName = keyof typeof icons;
 
 interface DynamicIconProps extends LucideProps {
-  name: IconName;
+  name: IconName | string;
+  fallback?: LucideIcon;
 }
 
-const DynamicIcon = ({ name, className, ...props }: DynamicIconProps) => {
-  // 4. 从映射表中获取组件
-  const IconComponent = ICON_MAP[name];
+/**
+ * 动态图标组件 - 支持所有 Lucide React 图标
+ *
+ * @param name - 图标名称 (例如: 'Wrench', 'Smartphone', 'Battery')
+ * @param fallback - 可选的后备图标组件
+ * @param props - Lucide 图标的其他属性 (size, color, className 等)
+ *
+ * @example
+ * <DynamicIcon name="Smartphone" className="size-6 text-blue-500" />
+ * <DynamicIcon name="Battery" size={24} color="red" />
+ * <DynamicIcon name="InvalidIcon" fallback={HelpCircle} />
+ */
+const DynamicIcon: React.FC<DynamicIconProps> = ({
+  name,
+  fallback,
+  ...props
+}) => {
+  // 从 lucide-react 的 icons 对象中动态获取图标组件
+  const IconComponent = icons[name as IconName] as LucideIcon;
 
-  // 5. 安全检查：虽然类型系统限制了 name，但为了防止运行时数据错误，
-  // 如果找不到对应图标，渲染默认图标 (HelpCircle) 或 null
+  // 如果找不到对应图标
   if (!IconComponent) {
-    console.warn(`Icon "${name}" not found in ICON_MAP.`);
-    return <HelpCircle className={className} {...props} />;
+    console.warn(`Icon "${name}" not found in lucide-react icons.`);
+
+    // 使用提供的 fallback 或默认的 HelpCircle
+    if (fallback) {
+      const FallbackIcon = fallback;
+      return <FallbackIcon {...props} />;
+    }
+
+    // 使用 HelpCircle 作为最终后备
+    const HelpCircle = icons.MessageCircleQuestionMark as LucideIcon;
+    return <HelpCircle {...props} />;
   }
 
-  return <IconComponent className={className} {...props} />;
+  return <IconComponent {...props} />;
 };
 
-// 使用 memo 优化
 export default DynamicIcon;

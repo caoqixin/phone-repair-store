@@ -10,18 +10,7 @@ import {
   Lock,
   Loader2,
 } from "lucide-react";
-
-const API_BASE_URL = "/api";
-
-interface Settings {
-  shop_name?: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  p_iva?: string;
-  website_description_it?: string;
-  website_description_cn?: string;
-}
+import { Settings } from "../types";
 
 const About: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -35,7 +24,9 @@ const About: React.FC = () => {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/settings`);
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/settings`
+      );
       const data = await response.json();
 
       if (data.success) {

@@ -109,5 +109,21 @@
     "legal": "法律信息",
     "privacy_link": "隐私政策",
     "terms_link": "服务条款"
+  },
+  "cookie": {
+    "title": "Cookie 和隐私",
+    "subtitle": "完全透明的数据政策",
+    "text": "本网站使用必要的 Cookie 以确保正常运行并改善您的体验。我们托管在 Cloudflare 上,仅收集匿名访客数据以改进我们的服务。",
+    "accept": "接受全部",
+    "reject": "拒绝",
+    "show_details": "显示详情",
+    "hide_details": "隐藏详情",
+    "no_third_party": "无第三方 Cookie",
+    "details_title": "我们收集的内容:",
+    "detail_essential": "必要 Cookie: 网站运行所需(语言偏好、Cookie 同意)",
+    "detail_analytics": "匿名分析数据: 页面访问、停留时间、使用设备",
+    "detail_cloudflare": "Cloudflare 基础设施: 安全可靠的托管,无广告跟踪",
+    "detail_no_tracking": "无跨站跟踪或向第三方出售数据",
+    "cloudflare_privacy": "Cloudflare 隐私政策"
   }
 }
