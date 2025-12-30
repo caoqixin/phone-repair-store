@@ -1,0 +1,91 @@
+import { apiPut } from "../../services/auth.service";
+import { ContactMessage } from "../../types";
+import { ToastType } from "../ToastProvider";
+
+interface MessagesViewProps {
+  data: ContactMessage[];
+  refresh: () => void;
+  showToast: (msg: string, type?: ToastType) => void;
+}
+
+export const MessagesView = ({
+  data,
+  refresh,
+  showToast,
+}: MessagesViewProps) => {
+  const markAsRead = async (id: number) => {
+    try {
+      await apiPut(`/contacts/${id}/read`, {});
+      showToast("已标记为已读");
+      refresh();
+    } catch (error) {
+      showToast("操作失败", "error");
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-slate-800">客户留言</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+            <tr>
+              <th className="px-6 py-4">客户</th>
+              <th className="px-6 py-4">留言内容</th>
+              <th className="px-6 py-4 w-32">时间</th>
+              <th className="px-6 py-4 w-24 text-center">状态</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {data.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={4}
+                  className="px-6 py-12 text-center text-slate-400"
+                >
+                  暂无留言
+                </td>
+              </tr>
+            ) : (
+              data.map((msg: ContactMessage) => (
+                <tr
+                  key={msg.id}
+                  className={`hover:bg-slate-50 ${
+                    !msg.is_read ? "bg-blue-50/30" : ""
+                  }`}
+                >
+                  <td className="px-6 py-4">
+                    <div className="font-bold text-slate-900">{msg.name}</div>
+                    <div className="text-xs text-slate-500 font-mono">
+                      {msg.email}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-slate-700 leading-relaxed">
+                    {msg.message}
+                  </td>
+                  <td className="px-6 py-4 text-xs text-slate-400">
+                    {new Date(msg.created_at * 1000).toLocaleDateString(
+                      "zh-CN"
+                    )}
+                  </td>
+                  <td className="px-6 py-4 text-center">
+                    {!msg.is_read ? (
+                      <button
+                        onClick={() => markAsRead(msg.id)}
+                        className="text-xs text-blue-600 hover:text-blue-700 font-medium"
+                      >
+                        标为已读
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-400">已读</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};

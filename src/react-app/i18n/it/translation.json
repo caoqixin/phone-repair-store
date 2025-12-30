@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Servizi",
+    "booking": "Prenota",
+    "contact": "Contatti",
+    "about": "Chi Siamo",
+    "call_now": "Chiama Ora"
+  },
+  "hero": {
+    "open_now": "APERTO ORA",
+    "closed_now": "CHIUSO ORA"
+  },
+  "parcel": {
+    "title": "Tracciamento Pacchi",
+    "placeholder": "Inserisci il numero di tracciamento",
+    "btn": "Traccia"
+  },
+  "features": {
+    "fast": {
+      "title": "Riparazione Rapida",
+      "desc": "La maggior parte delle riparazioni viene completata in meno di 1 ora."
+    },
+    "warranty": {
+      "title": "Garanzia Inclusa",
+      "desc": "Offriamo 3 mesi di garanzia su tutte le riparazioni."
+    },
+    "expert": {
+      "title": "Tecnici Esperti",
+      "desc": "Oltre 10 anni di esperienza nel settore."
+    }
+  },
+  "services": {
+    "title": "I Nostri Servizi",
+    "subtitle": "Cosa Possiamo Fare Per Te"
+  },
+  "about": {
+    "title": "Chi Siamo",
+    "who_we_are": "Chi Siamo",
+    "description": "Siamo un servizio professionale di riparazione di telefoni e tablet situato a Milano. Con anni di esperienza e tecnici esperti, forniamo soluzioni di riparazione veloci, affidabili e convenienti.",
+    "description_detail": "La nostra missione è estendere la vita dei tuoi dispositivi attraverso riparazioni di qualità e un eccellente servizio clienti. Utilizziamo solo ricambi originali o di alta qualità e offriamo garanzie su tutto il nostro lavoro.",
+    "why_choose_us": "Perché Sceglierci",
+    "feature_quality_title": "Riparazioni di Qualità",
+    "feature_quality_desc": "Utilizziamo solo ricambi originali o certificati per tutte le riparazioni",
+    "feature_speed_title": "Servizio Veloce",
+    "feature_speed_desc": "La maggior parte delle riparazioni completate entro 24-48 ore",
+    "feature_warranty_title": "Garanzia Inclusa",
+    "feature_warranty_desc": "Tutte le riparazioni includono una garanzia completa",
+    "feature_service_title": "Supporto Esperto",
+    "feature_service_desc": "Servizio clienti professionale e cordiale",
+    "privacy": "Politica sulla Privacy",
+    "privacy_text": "Ci impegniamo a proteggere i tuoi dati personali e la tua privacy. Tutte le informazioni fornite vengono gestite in modo sicuro e in conformità con il regolamento GDPR.",
+    "privacy_point_1": "Raccogliamo solo le informazioni necessarie per fornire i nostri servizi",
+    "privacy_point_2": "I tuoi dati sono conservati in modo sicuro e mai condivisi con terze parti senza consenso",
+    "privacy_point_3": "Hai il diritto di accedere, modificare o eliminare i tuoi dati personali in qualsiasi momento",
+    "privacy_point_4": "Utilizziamo misure di sicurezza standard del settore per proteggere le tue informazioni",
+    "terms": "Termini e Condizioni",
+    "term_warranty": "Tutte le riparazioni includono una garanzia di 90 giorni su parti e manodopera",
+    "term_pickup": "Ritiro del dispositivo disponibile entro i limiti della città di Milano",
+    "term_payment": "Accettiamo contanti, carte di credito e bonifici bancari",
+    "term_cancellation": "Le cancellazioni delle prenotazioni devono essere effettuate con almeno 24 ore di anticipo"
+  },
+  "contact": {
+    "title": "Contattaci",
+    "subtitle": "Siamo qui per aiutarti",
+    "location": "Dove Siamo",
+    "hours_title": "Orari di Apertura",
+    "send_message": "Inviaci un Messaggio",
+    "message_sent": "Messaggio Inviato!",
+    "confirmation_sent": "Ti risponderemo il prima possibile.",
+    "send_another": "Invia un altro messaggio",
+    "form": {
+      "name": "Il tuo nome",
+      "email": "La tua email",
+      "message": "Come possiamo aiutarti?",
+      "send": "Invia Messaggio",
+      "sending": "Invio in corso..."
+    }
+  },
+  "booking": {
+    "title": "Prenota un Appuntamento",
+    "desc": "Salta la fila e assicurati una riparazione immediata",
+    "form": {
+      "name": "Nome e Cognome",
+      "contact": "Telefono o Email",
+      "device": "Modello Dispositivo",
+      "issue": "Problema Riscontrato",
+      "issue_placeholder": "Descrivi il tuo problema",
+      "date": "Data Preferita",
+      "time": "Orario Indicativo",
+      "submit": "Conferma Prenotazione",
+      "submitting": "Elaborazione..."
+    },
+    "success": {
+      "title": "Prenotazione Ricevuta!",
+      "message": "Ti abbiamo inviato un'email di conferma. Ti aspettiamo in negozio.",
+      "new_booking": "Nuova Prenotazione"
+    }
+  },
+  "issues": {
+    "screen": "Sostituzione Schermo",
+    "battery": "Sostituzione Batteria",
+    "camera": "Riparazione Fotocamera",
+    "water_damage": "Danni da Liquidi",
+    "software": "Problemi Software",
+    "other": "Altro Problema"
+  },
+  "footer": {
+    "legal": "Note Legali",
+    "privacy_link": "Privacy Policy",
+    "terms_link": "Termini di Servizio"
+  }
+}

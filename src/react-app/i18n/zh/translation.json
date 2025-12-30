@@ -1,0 +1,113 @@
+{
+  "nav": {
+    "home": "首页",
+    "services": "服务项目",
+    "booking": "在线预约",
+    "contact": "联系我们",
+    "about": "关于我们",
+    "call_now": "立即致电"
+  },
+  "hero": {
+    "open_now": "营业中",
+    "closed_now": "已打烊"
+  },
+  "parcel": {
+    "title": "快递查询",
+    "placeholder": "请输入快递单号",
+    "btn": "查询"
+  },
+  "features": {
+    "fast": {
+      "title": "极速快修",
+      "desc": "大多数维修服务可在一小时内完成。"
+    },
+    "warranty": {
+      "title": "售后保修",
+      "desc": "所有更换配件均提供 3 个月质量保修。"
+    },
+    "expert": {
+      "title": "专业技术",
+      "desc": "拥有超过 10 年的行业维修经验。"
+    }
+  },
+  "services": {
+    "title": "服务项目",
+    "section_title": "我们要为您提供以下服务"
+  },
+  "about": {
+    "title": "关于我们",
+    "who_we_are": "我们是谁",
+    "description": "我们是位于米兰的专业手机和平板电脑维修服务中心。凭借多年的经验和专业技术人员,我们提供快速、可靠且价格合理的维修解决方案。",
+    "description_detail": "我们的使命是通过优质的维修和卓越的客户服务来延长您设备的使用寿命。我们只使用原装或高质量的替换零件,并为所有工作提供保修。",
+    "why_choose_us": "为什么选择我们",
+    "feature_quality_title": "优质维修",
+    "feature_quality_desc": "所有维修均使用原装或认证零件",
+    "feature_speed_title": "快速服务",
+    "feature_speed_desc": "大多数维修在24-48小时内完成",
+    "feature_warranty_title": "保修服务",
+    "feature_warranty_desc": "所有维修均附带全面保修",
+    "feature_service_title": "专业支持",
+    "feature_service_desc": "专业友好的客户服务",
+    "privacy": "隐私政策",
+    "privacy_text": "我们致力于保护您的个人数据和隐私。您提供的所有信息都将安全处理,并符合GDPR法规。",
+    "privacy_point_1": "我们只收集提供服务所需的必要信息",
+    "privacy_point_2": "您的数据安全存储,未经同意绝不与第三方共享",
+    "privacy_point_3": "您有权随时访问、修改或删除您的个人数据",
+    "privacy_point_4": "我们使用行业标准的安全措施来保护您的信息",
+    "terms": "条款与条件",
+    "term_warranty": "所有维修包含90天零件和人工保修",
+    "term_pickup": "米兰市区内可提供设备取件服务",
+    "term_payment": "我们接受现金、信用卡和银行转账",
+    "term_cancellation": "预约取消必须提前至少24小时"
+  },
+  "contact": {
+    "title": "联系我们",
+    "subtitle": "随时为您解答疑问",
+    "location": "店铺地址",
+    "hours_title": "营业时间",
+    "send_message": "发送消息",
+    "message_sent": "发送成功！",
+    "confirmation_sent": "我们会尽快回复您。",
+    "send_another": "发送新消息",
+    "form": {
+      "name": "您的称呼",
+      "email": "电子邮箱",
+      "message": "留言内容",
+      "send": "发送",
+      "sending": "发送中..."
+    }
+  },
+  "booking": {
+    "title": "在线预约",
+    "desc": "提前预约，到店即修，无需等待",
+    "form": {
+      "name": "姓名",
+      "contact": "联系电话或邮箱",
+      "device": "设备型号",
+      "issue": "故障类型",
+      "issue_placeholder": "描述问题",
+      "date": "预约日期",
+      "time": "预约时间",
+      "submit": "提交预约",
+      "submitting": "提交中..."
+    },
+    "success": {
+      "title": "预约成功！",
+      "message": "我们已收到您的请求并发送了确认邮件，期待您的光临。",
+      "new_booking": "再次预约"
+    }
+  },
+  "issues": {
+    "screen": "屏幕破碎/显示问题",
+    "battery": "电池老化/充电问题",
+    "camera": "摄像头故障",
+    "water_damage": "进水处理",
+    "software": "系统/软件问题",
+    "other": "其他问题"
+  },
+  "footer": {
+    "legal": "法律信息",
+    "privacy_link": "隐私政策",
+    "terms_link": "服务条款"
+  }
+}
