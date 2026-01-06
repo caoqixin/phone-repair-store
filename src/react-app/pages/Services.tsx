@@ -1,35 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import DynamicIcon from "../components/DynamicIcon";
 import { ServiceItem } from "../types";
+import { useLoaderData, useNavigation } from "react-router";
+import { ServiceData } from "../loader/service";
 
 const Services: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language === "zh";
-  const [services, setServices] = useState<ServiceItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadServices();
-  }, []);
-
-  const loadServices = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/services`
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setServices(data.data);
-      }
-    } catch (error) {
-      console.error("Load services error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { services } = useLoaderData() as ServiceData;
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
 
   // 按类别分组
   const groupedServices = services.reduce((acc, service) => {
@@ -47,7 +29,7 @@ const Services: React.FC = () => {
     money: { it: "Pagamenti", cn: "缴费服务" },
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="size-12 text-primary-600 animate-spin" />

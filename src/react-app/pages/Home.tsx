@@ -1,159 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  MapPin,
-  Clock,
-  Zap,
-  ShieldCheck,
-  Star,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
-import { Link } from "react-router";
+import { MapPin, Clock, Zap, ShieldCheck, Star } from "lucide-react";
+import { Link, useLoaderData } from "react-router";
 import ParcelTracker from "../components/ParcelTracker";
 import ServiceCard from "../components/ServiceCard";
-import { BusinessHour, Holiday, ServiceItem, Settings } from "../types";
+import { HomeData } from "../loader/home";
+import { useBusinessStatus } from "../hooks/use-business-status";
 
 const Home: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language === "zh";
-  const [loading, setLoading] = useState(true);
-  const [settings, setSettings] = useState<Settings>({});
-  const [services, setServices] = useState<ServiceItem[]>([]);
-  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
-  const [businessStatus, setBusinessStatus] = useState<{
-    isOpen: boolean;
-    message: string;
-    type: "open" | "closed" | "holiday";
-  }>({ isOpen: false, message: "", type: "closed" });
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  const { settings, services, businessHours, holidays, carriers } =
+    useLoaderData() as HomeData;
 
-  useEffect(() => {
-    if (businessHours.length > 0) {
-      calculateBusinessStatus();
-    }
-  }, [businessHours, holidays]);
-
-  const loadData = async () => {
-    try {
-      const [settingsRes, servicesRes, businessHoursRes, holidaysRes] =
-        await Promise.all([
-          fetch(`${import.meta.env.VITE_API_BASE_URL}/settings`),
-          fetch(`${import.meta.env.VITE_API_BASE_URL}/services`),
-          fetch(`${import.meta.env.VITE_API_BASE_URL}/business-hours`),
-          fetch(`${import.meta.env.VITE_API_BASE_URL}/holidays`),
-        ]);
-
-      const settingsData = await settingsRes.json();
-      const servicesData = await servicesRes.json();
-      const businessHoursData = await businessHoursRes.json();
-      const holidaysData = await holidaysRes.json();
-
-      if (settingsData.success) setSettings(settingsData.data);
-      if (servicesData.success) setServices(servicesData.data);
-      if (businessHoursData.success) setBusinessHours(businessHoursData.data);
-      if (holidaysData.success) setHolidays(holidaysData.data);
-    } catch (error) {
-      console.error("Load data error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const calculateBusinessStatus = () => {
-    const now = new Date();
-    const today = now.getDay();
-    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-      now.getMinutes()
-    ).padStart(2, "0")}`;
-    const todayStr = now.toISOString().split("T")[0];
-
-    // 检查是否在节假日
-    const isHoliday = holidays.some((h) => {
-      return h.is_active && todayStr >= h.start_date && todayStr <= h.end_date;
-    });
-
-    if (isHoliday) {
-      const holiday = holidays.find(
-        (h) => h.is_active && todayStr >= h.start_date && todayStr <= h.end_date
-      );
-      setBusinessStatus({
-        isOpen: false,
-        message: isZh
-          ? `放假中 - ${holiday?.name}`
-          : `Chiuso per festività - ${holiday?.name}`,
-        type: "holiday",
-      });
-      return;
-    }
-
-    // 检查今天营业时间
-    const todayHours = businessHours.find((h) => h.day_of_week === today);
-
-    if (!todayHours || !todayHours.is_open) {
-      setBusinessStatus({
-        isOpen: false,
-        message: isZh ? "今日休息" : "Chiuso oggi",
-        type: "closed",
-      });
-      return;
-    }
-
-    // 检查当前时间是否在营业时间内
-    let isCurrentlyOpen = false;
-
-    if (todayHours.morning_open && todayHours.morning_close) {
-      if (
-        currentTime >= todayHours.morning_open &&
-        currentTime <= todayHours.morning_close
-      ) {
-        isCurrentlyOpen = true;
-      }
-    }
-
-    if (todayHours.afternoon_open && todayHours.afternoon_close) {
-      if (
-        currentTime >= todayHours.afternoon_open &&
-        currentTime <= todayHours.afternoon_close
-      ) {
-        isCurrentlyOpen = true;
-      }
-    }
-
-    if (isCurrentlyOpen) {
-      setBusinessStatus({
-        isOpen: true,
-        message: isZh ? "营业中" : "Aperto",
-        type: "open",
-      });
-    } else {
-      // 检查是否是午休时间
-      if (
-        todayHours.morning_close &&
-        todayHours.afternoon_open &&
-        currentTime > todayHours.morning_close &&
-        currentTime < todayHours.afternoon_open
-      ) {
-        setBusinessStatus({
-          isOpen: false,
-          message: isZh
-            ? `午休中 (${todayHours.afternoon_open} 开门)`
-            : `Pausa pranzo (Riapre ${todayHours.afternoon_open})`,
-          type: "closed",
-        });
-      } else {
-        setBusinessStatus({
-          isOpen: false,
-          message: isZh ? "今日已关门" : "Chiuso",
-          type: "closed",
-        });
-      }
-    }
-  };
+  const businessStatus = useBusinessStatus(businessHours, holidays);
 
   const features = [
     {
@@ -179,14 +40,6 @@ const Home: React.FC = () => {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="size-12 text-primary-600 animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="animate-fade-in">
       {/* Hero Section */}
@@ -202,14 +55,6 @@ const Home: React.FC = () => {
 
         <div className="relative z-20 max-w-7xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
           <div className="text-center lg:text-left">
-            {/* Announcement Banner - 移到最上方 */}
-            {(isZh ? settings.announcement_cn : settings.announcement_it) && (
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider mb-4 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 animate-pulse">
-                <AlertCircle className="size-3.5" />
-                {isZh ? settings.announcement_cn : settings.announcement_it}
-              </div>
-            )}
-
             {/* Business Status Badge */}
             <div className="mb-6">
               <span
@@ -262,11 +107,31 @@ const Home: React.FC = () => {
           </div>
 
           <div className="w-full max-w-md mx-auto lg:max-w-none lg:translate-x-8">
-            <ParcelTracker />
+            <ParcelTracker carriers={carriers} />
           </div>
         </div>
       </section>
-
+      {/* Features */}
+      <section className="py-24 bg-white border-y border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-12 text-center">
+          {features.map((f, i) => (
+            <div
+              key={i}
+              className="group p-6 rounded-2xl hover:bg-slate-50 transition-colors"
+            >
+              <div
+                className={`w-16 h-16 ${f.bg} ${f.color} rounded-2xl flex items-center justify-center mx-auto mb-6 transition-transform group-hover:scale-110`}
+              >
+                <f.icon className="size-8" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">
+                {t(f.titleKey)}
+              </h3>
+              <p className="text-slate-600 leading-relaxed">{t(f.descKey)}</p>
+            </div>
+          ))}
+        </div>
+      </section>
       {/* Services Grid */}
       <section className="py-24 bg-slate-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -320,28 +185,6 @@ const Home: React.FC = () => {
               </Link>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-24 bg-white border-y border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-12 text-center">
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className="group p-6 rounded-2xl hover:bg-slate-50 transition-colors"
-            >
-              <div
-                className={`w-16 h-16 ${f.bg} ${f.color} rounded-2xl flex items-center justify-center mx-auto mb-6 transition-transform group-hover:scale-110`}
-              >
-                <f.icon className="size-8" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">
-                {t(f.titleKey)}
-              </h3>
-              <p className="text-slate-600 leading-relaxed">{t(f.descKey)}</p>
-            </div>
-          ))}
         </div>
       </section>
 

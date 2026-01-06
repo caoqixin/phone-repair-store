@@ -1,159 +1,48 @@
 import React, { useState, useEffect } from "react";
-import { NavLink, Outlet, useLocation } from "react-router";
+import {
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useLocation,
+  useRevalidator,
+} from "react-router";
 import { useTranslation } from "react-i18next";
 import { Menu, X, Phone, Moon, MapPin, Megaphone } from "lucide-react";
 import LanguageSwitcher from "./LanguageSwitcher";
 import CookieBanner from "./CookieBanner";
 import Instagram from "../assets/instagram.svg?react";
 import Facebook from "../assets/facebook.svg?react";
-import { BusinessHour, Holiday, Settings } from "../types";
+import { LayoutData } from "../loader/layout";
+import { useBusinessStatus } from "../hooks/use-business-status";
 
 const Layout: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language === "zh";
-  console.log(i18n.language);
-
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [settings, setSettings] = useState<Settings>({});
-  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
-  const [businessStatus, setBusinessStatus] = useState<{
-    isOpen: boolean;
-    message: string;
-    type: "open" | "closed" | "holiday";
-  }>({ isOpen: false, message: "", type: "closed" });
-
   const location = useLocation();
   const isAdmin = location.pathname.startsWith("/admin");
 
+  // 1. Data Router 模式：直接获取数据，无需 useEffect fetch
+  const { settings, businessHours, holidays } = useLoaderData() as LayoutData;
+  const revalidator = useRevalidator();
+
+  // 2. 状态轮询：每30秒重新校验数据 (Data Router 方式)
   useEffect(() => {
-    loadSettings();
-    // 每30秒更新一次设置和营业状态
-    const interval = setInterval(() => {
-      loadSettings();
+    const timer = setInterval(() => {
+      // 只有当前台页面可见时才刷新，节省资源
+      if (document.visibilityState === "visible") {
+        revalidator.revalidate();
+      }
     }, 30000);
-    return () => clearInterval(interval);
-  }, []);
+    return () => clearInterval(timer);
+  }, [revalidator]);
 
-  useEffect(() => {
-    if (businessHours.length > 0) {
-      calculateBusinessStatus();
-      // 每分钟更新一次营业状态
-      const statusInterval = setInterval(calculateBusinessStatus, 60000);
-      return () => clearInterval(statusInterval);
-    }
-  }, [businessHours, holidays]);
+  // 3. 业务逻辑：计算营业状态 (包含时区修正)
+  const businessStatus = useBusinessStatus(businessHours, holidays);
 
-  const loadSettings = async () => {
-    try {
-      const [settingsRes, businessHoursRes, holidaysRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/settings`),
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/business-hours`),
-        fetch(`${import.meta.env.VITE_API_BASE_URL}/holidays`),
-      ]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-      const settingsData = await settingsRes.json();
-      const businessHoursData = await businessHoursRes.json();
-      const holidaysData = await holidaysRes.json();
-
-      if (settingsData.success) setSettings(settingsData.data);
-      if (businessHoursData.success) setBusinessHours(businessHoursData.data);
-      if (holidaysData.success) setHolidays(holidaysData.data);
-    } catch (error) {
-      console.error("Load settings error:", error);
-    }
-  };
-
-  const calculateBusinessStatus = () => {
-    const now = new Date();
-    const today = now.getDay();
-    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-      now.getMinutes()
-    ).padStart(2, "0")}`;
-    const todayStr = now.toISOString().split("T")[0];
-
-    // 检查是否在节假日
-    const isHoliday = holidays.some((h) => {
-      return h.is_active && todayStr >= h.start_date && todayStr <= h.end_date;
-    });
-
-    if (isHoliday) {
-      const holiday = holidays.find(
-        (h) => h.is_active && todayStr >= h.start_date && todayStr <= h.end_date
-      );
-      setBusinessStatus({
-        isOpen: false,
-        message: isZh
-          ? `放假中 - ${holiday?.name}`
-          : `Chiuso per festività - ${holiday?.name}`,
-        type: "holiday",
-      });
-      return;
-    }
-
-    // 检查今天营业时间
-    const todayHours = businessHours.find((h) => h.day_of_week === today);
-
-    if (!todayHours || !todayHours.is_open) {
-      setBusinessStatus({
-        isOpen: false,
-        message: isZh ? "今日休息" : "Chiuso oggi",
-        type: "closed",
-      });
-      return;
-    }
-
-    // 检查当前时间是否在营业时间内
-    let isCurrentlyOpen = false;
-
-    if (todayHours.morning_open && todayHours.morning_close) {
-      if (
-        currentTime >= todayHours.morning_open &&
-        currentTime <= todayHours.morning_close
-      ) {
-        isCurrentlyOpen = true;
-      }
-    }
-
-    if (todayHours.afternoon_open && todayHours.afternoon_close) {
-      if (
-        currentTime >= todayHours.afternoon_open &&
-        currentTime <= todayHours.afternoon_close
-      ) {
-        isCurrentlyOpen = true;
-      }
-    }
-
-    if (isCurrentlyOpen) {
-      setBusinessStatus({
-        isOpen: true,
-        message: isZh ? "营业中" : "Aperto",
-        type: "open",
-      });
-    } else {
-      // 检查是否是午休时间
-      if (
-        todayHours.morning_close &&
-        todayHours.afternoon_open &&
-        currentTime > todayHours.morning_close &&
-        currentTime < todayHours.afternoon_open
-      ) {
-        setBusinessStatus({
-          isOpen: false,
-          message: isZh
-            ? `午休中 (${todayHours.afternoon_open} 开门)`
-            : `Pausa pranzo (Riapre ${todayHours.afternoon_open})`,
-          type: "closed",
-        });
-      } else {
-        setBusinessStatus({
-          isOpen: false,
-          message: isZh ? "今日已关门" : "Chiuso",
-          type: "closed",
-        });
-      }
-    }
-  };
+  // 如果是后台管理界面，直接渲染 Outlet
+  if (isAdmin) return <Outlet />;
 
   const navLinks = [
     { path: "/", label: t("nav.home") },
@@ -162,8 +51,6 @@ const Layout: React.FC = () => {
     { path: "/contact", label: t("nav.contact") },
     { path: "/about", label: t("nav.about") },
   ];
-
-  if (isAdmin) return <Outlet />;
 
   const announcement = isZh
     ? settings.announcement_cn
@@ -179,19 +66,28 @@ const Layout: React.FC = () => {
         </div>
       )}
 
-      {/* Info Bar with Business Status */}
+      {/* Info Bar */}
       <div className="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
           <div className="flex items-center gap-4 flex-wrap">
-            <span className="flex items-center gap-1">
-              <MapPin className="size-3" /> {settings.address}
+            <span className="flex items-center gap-1 hover:text-white transition-colors">
+              <MapPin className="size-3" />
+              <a
+                href="https://maps.google.com/?q=Luna+Tech+Bologna"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {settings.address || "Via Mascarella, Bologna"}
+              </a>
             </span>
             <span className="hidden sm:flex items-center gap-1">
-              <Phone className="size-3" /> {settings.phone}
+              <Phone className="size-3" />
+              <a href={`tel:${settings.phone}`}>{settings.phone}</a>
             </span>
+
             {/* Business Status Badge */}
             <span
-              className={`flex items-center gap-1.5 px-2 py-1 rounded-full font-bold ${
+              className={`flex items-center gap-1.5 px-2 py-1 rounded-full font-bold select-none ${
                 businessStatus.type === "open"
                   ? "bg-emerald-500/20 text-emerald-300"
                   : businessStatus.type === "holiday"
@@ -211,6 +107,7 @@ const Layout: React.FC = () => {
               {businessStatus.message}
             </span>
           </div>
+
           <div className="flex gap-3 items-center">
             {settings.instagram_url && (
               <a
@@ -239,7 +136,7 @@ const Layout: React.FC = () => {
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -248,14 +145,14 @@ const Layout: React.FC = () => {
                 <img
                   src={settings.logo_url}
                   alt={settings.shop_name}
-                  className="h-8 w-auto rounded"
+                  className="h-8 w-auto rounded object-contain"
                 />
               ) : (
                 <div className="bg-primary-600 text-white p-1.5 rounded-lg group-hover:bg-primary-700 transition-colors shadow-sm">
                   <Moon className="size-6" fill="currentColor" />
                 </div>
               )}
-              <span className="text-xl font-bold tracking-tight text-slate-900">
+              <span className="text-xl font-bold tracking-tight text-slate-900 group-hover:text-primary-700 transition-colors">
                 {settings.shop_name}
               </span>
             </NavLink>
@@ -267,9 +164,9 @@ const Layout: React.FC = () => {
                   key={link.path}
                   to={link.path}
                   className={({ isActive }) =>
-                    `text-sm font-medium transition-colors ${
+                    `text-sm font-medium transition-colors relative py-1 ${
                       isActive
-                        ? "text-primary-600"
+                        ? "text-primary-600 after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary-600 after:rounded-full"
                         : "text-slate-600 hover:text-primary-600"
                     }`
                   }
@@ -284,7 +181,7 @@ const Layout: React.FC = () => {
               <LanguageSwitcher />
               <a
                 href={`tel:${settings.phone?.replace(/ /g, "") || ""}`}
-                className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full text-sm font-bold shadow-md transition-all hover:shadow-lg flex items-center gap-2"
+                className="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full text-sm font-bold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2 active:scale-95"
               >
                 <Phone className="size-4" />
                 {t("nav.call_now")}
@@ -296,7 +193,7 @@ const Layout: React.FC = () => {
               <LanguageSwitcher />
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-slate-600 hover:text-primary-600 p-2"
+                className="text-slate-600 hover:text-primary-600 p-2 rounded-md hover:bg-slate-100 transition-colors"
                 aria-label="Toggle menu"
               >
                 {isMenuOpen ? (
@@ -319,7 +216,7 @@ const Layout: React.FC = () => {
                   to={link.path}
                   onClick={() => setIsMenuOpen(false)}
                   className={({ isActive }) =>
-                    `block px-3 py-3 rounded-lg text-base font-medium ${
+                    `block px-3 py-3 rounded-lg text-base font-medium transition-colors ${
                       isActive
                         ? "bg-primary-50 text-primary-700"
                         : "text-slate-700 hover:bg-slate-50"
@@ -329,10 +226,10 @@ const Layout: React.FC = () => {
                   {link.label}
                 </NavLink>
               ))}
-              <div className="pt-4">
+              <div className="pt-4 pb-2">
                 <a
                   href={`tel:${settings.phone?.replace(/ /g, "") || ""}`}
-                  className="w-full bg-slate-900 text-white px-4 py-3 rounded-xl text-center font-bold shadow-md block"
+                  className="w-full bg-slate-900 text-white px-4 py-3 rounded-xl text-center font-bold shadow-md block active:scale-[0.98] transition-transform"
                 >
                   {t("nav.call_now")}
                 </a>
@@ -351,7 +248,15 @@ const Layout: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8 text-sm">
           <div>
             <div className="flex items-center gap-2 mb-4 text-white">
-              <Moon className="size-5 text-primary-500" fill="currentColor" />
+              {settings.logo_url ? (
+                <img
+                  src={settings.logo_url}
+                  className="h-6 w-auto brightness-0 invert"
+                  alt="logo"
+                />
+              ) : (
+                <Moon className="size-5 text-primary-500" fill="currentColor" />
+              )}
               <span className="font-bold text-lg">{settings.shop_name}</span>
             </div>
             <p className="mb-4 max-w-xs leading-relaxed opacity-80">
@@ -373,19 +278,30 @@ const Layout: React.FC = () => {
               {t("nav.contact")}
             </h4>
             <div className="space-y-3">
-              <p className="flex items-start gap-2">
+              <a
+                href={`https://maps.google.com/?q=${settings.address}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-start gap-2 hover:text-white transition-colors"
+              >
                 <MapPin className="size-4 mt-0.5 text-primary-500" />
                 {settings.address}
-              </p>
-              <p className="flex items-center gap-2">
+              </a>
+              <a
+                href={`tel:${settings.phone}`}
+                className="flex items-center gap-2 hover:text-white transition-colors"
+              >
                 <Phone className="size-4 text-primary-500" />
                 {settings.phone}
-              </p>
+              </a>
               {settings.email && (
-                <p className="flex items-center gap-2">
+                <a
+                  href={`mailto:${settings.email}`}
+                  className="flex items-center gap-2 hover:text-white transition-colors"
+                >
                   <span className="text-primary-500">✉</span>
                   {settings.email}
-                </p>
+                </a>
               )}
             </div>
           </div>
@@ -438,8 +354,8 @@ const Layout: React.FC = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-4 mt-8 pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
-          &copy; {new Date().getFullYear()} {settings.shop_name}. All rights
-          reserved.
+          &copy; {new Date().getFullYear()} {settings.shop_name || "Luna Tech"}.
+          All rights reserved.
         </div>
       </footer>
       <CookieBanner />

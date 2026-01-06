@@ -64,28 +64,40 @@
     "title": "Contattaci",
     "subtitle": "Siamo qui per aiutarti",
     "location": "Dove Siamo",
+    "phone": "Telefono",
+    "email": "Email",
     "hours_title": "Orari di Apertura",
     "send_message": "Inviaci un Messaggio",
     "message_sent": "Messaggio Inviato!",
     "confirmation_sent": "Ti risponderemo il prima possibile.",
     "send_another": "Invia un altro messaggio",
+    "form_title": "Scrivici",
     "form": {
       "name": "Il tuo nome",
       "email": "La tua email",
       "message": "Come possiamo aiutarti?",
       "send": "Invia Messaggio",
-      "sending": "Invio in corso..."
+      "sending": "Invio in corso...",
+      "placeholder": {
+        "name": "Inserisci il nome",
+        "email": "Inserisci email",
+        "message": "Inserisci il contenuto"
+      }
     }
   },
   "booking": {
     "title": "Prenota un Appuntamento",
     "desc": "Salta la fila e assicurati una riparazione immediata",
     "form": {
+      "device_info": "Informazione Dispositivo",
       "name": "Nome e Cognome",
-      "contact": "Telefono o Email",
+      "contact_info": "Informazione Personale",
+      "phone": "Telefono",
+      "email": "Email",
       "device": "Modello Dispositivo",
       "issue": "Problema Riscontrato",
       "issue_placeholder": "Descrivi il tuo problema",
+      "datetime_title": "Data e Ora",
       "date": "Data Preferita",
       "time": "Orario Indicativo",
       "submit": "Conferma Prenotazione",
@@ -125,5 +137,17 @@
     "detail_cloudflare": "Infrastruttura Cloudflare: Hosting sicuro e protetto, senza tracciamento pubblicitario",
     "detail_no_tracking": "Nessun tracciamento cross-site o vendita di dati a terzi",
     "cloudflare_privacy": "Informativa Privacy Cloudflare"
+  },
+  "common": {
+    "optional": "Opzionale"
+  },
+  "days": {
+    "mon": "lunedì",
+    "tue": "martedì",
+    "wed": "mercoledì",
+    "thu": "giovedì",
+    "fri": "venerdì",
+    "sat": "Sabato",
+    "sun": "Domenica"
   }
 }

@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import {
+  useLoaderData,
+  useNavigate,
+  useNavigation,
+  useRevalidator,
+} from "react-router";
 import {
   LogOut,
   Calendar,
@@ -11,98 +16,44 @@ import {
   User,
   Truck,
 } from "lucide-react";
-import { logout, apiGet } from "../../services/auth.service";
+import { logout } from "../../services/auth.service";
 import { useAuth } from "../../hooks/use-auth";
 import { ToastProvider, useToast } from "../../components/ToastProvider";
-import {
-  Appointment,
-  BusinessHour,
-  Carrier,
-  ContactMessage,
-  Holiday,
-  ServiceCategory,
-  ServiceItem,
-} from "../../types";
+
 import { AppointmentsView } from "../../components/admin/AppointmentsView";
 import { ServicesView } from "../../components/admin/ServicesView";
 import { CarriersView } from "../../components/admin/CarriersView";
 import { MessagesView } from "../../components/admin/MessageView";
 import { SettingsView } from "../../components/admin/SettingsView";
+import { DashboardData } from "../../loader/dashboard";
 
 const DashboardContent: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { isAuthenticated, user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [activeTab, setActiveTab] = useState<
     "appointments" | "services" | "carriers" | "messages" | "settings"
   >("appointments");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+  const {
+    appointments,
+    messages,
+    services,
+    carriers,
+    categories,
+    businessHours,
+    holidays,
+    settings,
+  } = useLoaderData() as DashboardData;
 
-  // Data State
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [messages, setMessages] = useState<ContactMessage[]>([]);
-  const [services, setServices] = useState<ServiceItem[]>([]);
-  const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [carriers, setCarriers] = useState<Carrier[]>([]);
-  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
-  const [holidays, setHolidays] = useState<Holiday[]>([]);
-  const [settings, setSettings] = useState<Record<string, string>>({});
+  const revalidator = useRevalidator();
 
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      navigate("/admin/login");
-      return;
-    }
-    if (isAuthenticated) {
-      loadData();
-    }
     if (window.innerWidth < 768) setIsSidebarOpen(false);
-  }, [isAuthenticated, authLoading, navigate]);
-
-  const loadData = async () => {
-    setIsLoading(true);
-    try {
-      const [
-        appointmentsRes,
-        messagesRes,
-        servicesRes,
-        categoriesRes,
-        carriersRes,
-        businessHoursRes,
-        holidaysRes,
-        settingsRes,
-      ] = await Promise.all([
-        apiGet<{ success: boolean; data: Appointment[] }>("/bookings"),
-        apiGet<{ success: boolean; data: ContactMessage[] }>("/contacts"),
-        apiGet<{ success: boolean; data: ServiceItem[] }>("/services/all"),
-        apiGet<{ success: boolean; data: ServiceCategory[] }>("/categories"),
-        apiGet<{ success: boolean; data: Carrier[] }>("/carriers/all"),
-        apiGet<{ success: boolean; data: BusinessHour[] }>("/business-hours"),
-        apiGet<{ success: boolean; data: Holiday[] }>("/holidays/all"),
-        apiGet<{ success: boolean; data: Record<string, string> }>("/settings"),
-      ]);
-
-      if (appointmentsRes.success) {
-        setAppointments(
-          appointmentsRes.data.sort((a, b) => b.created_at - a.created_at)
-        );
-      }
-      if (messagesRes.success) setMessages(messagesRes.data);
-      if (servicesRes.success) setServices(servicesRes.data);
-      if (categoriesRes.success) setCategories(categoriesRes.data);
-      if (carriersRes.success) setCarriers(carriersRes.data);
-      if (businessHoursRes.success) setBusinessHours(businessHoursRes.data);
-      if (holidaysRes.success) setHolidays(holidaysRes.data);
-      if (settingsRes.success) setSettings(settingsRes.data);
-    } catch (error) {
-      console.error("Load data error:", error);
-      showToast("加载数据失败", "error");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -235,7 +186,7 @@ const DashboardContent: React.FC = () => {
               {activeTab === "appointments" && (
                 <AppointmentsView
                   data={appointments}
-                  refresh={loadData}
+                  refresh={revalidator.revalidate}
                   showToast={showToast}
                 />
               )}
@@ -243,21 +194,21 @@ const DashboardContent: React.FC = () => {
                 <ServicesView
                   data={services}
                   categories={categories}
-                  refresh={loadData}
+                  refresh={revalidator.revalidate}
                   showToast={showToast}
                 />
               )}
               {activeTab === "carriers" && (
                 <CarriersView
                   data={carriers}
-                  refresh={loadData}
+                  refresh={revalidator.revalidate}
                   showToast={showToast}
                 />
               )}
               {activeTab === "messages" && (
                 <MessagesView
                   data={messages}
-                  refresh={loadData}
+                  refresh={revalidator.revalidate}
                   showToast={showToast}
                 />
               )}
@@ -266,7 +217,7 @@ const DashboardContent: React.FC = () => {
                   data={settings}
                   businessHours={businessHours}
                   holidays={holidays}
-                  refresh={loadData}
+                  refresh={revalidator.revalidate}
                   showToast={showToast}
                 />
               )}

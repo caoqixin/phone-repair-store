@@ -64,28 +64,40 @@
     "title": "联系我们",
     "subtitle": "随时为您解答疑问",
     "location": "店铺地址",
+    "phone": "联系电话",
+    "email": "电子邮箱",
     "hours_title": "营业时间",
     "send_message": "发送消息",
     "message_sent": "发送成功！",
     "confirmation_sent": "我们会尽快回复您。",
     "send_another": "发送新消息",
+    "form_title": "给我们发消息",
     "form": {
       "name": "您的称呼",
       "email": "电子邮箱",
       "message": "留言内容",
       "send": "发送",
-      "sending": "发送中..."
+      "sending": "发送中...",
+      "placeholder": {
+        "name": "输入您的名字",
+        "email": "输入您的电子邮箱",
+        "message": "输入内容"
+      }
     }
   },
   "booking": {
     "title": "在线预约",
     "desc": "提前预约，到店即修，无需等待",
     "form": {
+      "device_info": "设备信息",
       "name": "姓名",
-      "contact": "联系电话或邮箱",
+      "contact_info": "联系信息",
+      "phone": "联系电话",
+      "email": "邮箱",
       "device": "设备型号",
       "issue": "故障类型",
       "issue_placeholder": "描述问题",
+      "datetime_title": "日期和时间",
       "date": "预约日期",
       "time": "预约时间",
       "submit": "提交预约",
@@ -125,5 +137,17 @@
     "detail_cloudflare": "Cloudflare 基础设施: 安全可靠的托管,无广告跟踪",
     "detail_no_tracking": "无跨站跟踪或向第三方出售数据",
     "cloudflare_privacy": "Cloudflare 隐私政策"
+  },
+  "common": {
+    "optional": "可选"
+  },
+  "days": {
+    "mon": "周一",
+    "tue": "周二",
+    "wed": "周三",
+    "thu": "周四",
+    "fri": "周五",
+    "sat": "周六",
+    "sun": "周日"
   }
 }

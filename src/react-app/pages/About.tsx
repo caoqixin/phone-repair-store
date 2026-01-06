@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Shield,
@@ -10,34 +10,15 @@ import {
   Lock,
   Loader2,
 } from "lucide-react";
-import { Settings } from "../types";
+import { useLoaderData, useNavigation } from "react-router";
+import { AboutData } from "../loader/about";
 
 const About: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isZh = i18n.language === "zh";
-  const [settings, setSettings] = useState<Settings>({});
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadSettings();
-  }, []);
-
-  const loadSettings = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/settings`
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setSettings(data.data);
-      }
-    } catch (error) {
-      console.error("Load settings error:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { settings } = useLoaderData() as AboutData;
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
 
   const features = [
     {
@@ -84,7 +65,7 @@ const About: React.FC = () => {
     "about.term_cancellation",
   ];
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="size-8 text-primary-600 animate-spin" />

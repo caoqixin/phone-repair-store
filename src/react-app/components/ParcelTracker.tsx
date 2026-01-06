@@ -1,35 +1,24 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Package, Search } from "lucide-react";
+import { Package, Search, X } from "lucide-react";
 import { Carrier } from "../types";
 
-const ParcelTracker: React.FC = () => {
+interface ParcelTrackerProps {
+  carriers: Carrier[];
+}
+
+const ParcelTracker: React.FC<ParcelTrackerProps> = ({ carriers }) => {
   const { t } = useTranslation();
   const [trackingId, setTrackingId] = useState("");
-  const [carriers, setCarriers] = useState<Carrier[]>([]);
   const [selectedCarrierId, setSelectedCarrierId] = useState<number | null>(
     null
   );
 
   useEffect(() => {
-    loadCarriers();
-  }, []);
-
-  const loadCarriers = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/carriers`
-      );
-      const data = await response.json();
-
-      if (data.success && data.data.length > 0) {
-        setCarriers(data.data);
-        setSelectedCarrierId(data.data[0].id);
-      }
-    } catch (error) {
-      console.error("Load carriers error:", error);
+    if (carriers.length > 0 && selectedCarrierId === null) {
+      setSelectedCarrierId(carriers[0].id);
     }
-  };
+  }, [carriers, selectedCarrierId]);
 
   const handleTrack = (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +64,14 @@ const ParcelTracker: React.FC = () => {
             placeholder={t("parcel.placeholder")}
             className="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-black"
           />
-          <Search className="absolute right-3 top-3.5 text-gray-400 w-5 h-5" />
+          {trackingId ? (
+            <X
+              className="absolute right-3 top-3.5 text-gray-400 w-5 h-5"
+              onClick={() => setTrackingId("")}
+            />
+          ) : (
+            <Search className="absolute right-3 top-3.5 text-gray-400 w-5 h-5" />
+          )}
         </div>
 
         <button
