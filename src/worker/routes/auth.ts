@@ -6,6 +6,24 @@ import { authMiddleware } from "../middleware/auth";
 
 const app = new Hono<{ Bindings: Env }>();
 
+app.get("/setup-status", async (c) => {
+  try {
+    const settings = await c.env.luna_web_store
+      .prepare("SELECT * FROM settings WHERE key = 'is_initialized'")
+      .first();
+
+    const result = {
+      [settings?.key as string]: Number(settings?.value as number),
+    };
+
+    const isInitialized = result?.is_initialized == 1;
+
+    return c.json({ success: true, initialized: isInitialized });
+  } catch (error) {
+    return c.json({ success: false });
+  }
+});
+
 // =========================================================
 // 1. 登录接口
 // =========================================================
@@ -291,6 +309,22 @@ app.get("/verify", authMiddleware, async (c) => {
 // =========================================================
 app.post("/create-admin", async (c) => {
   try {
+    // 安全检查：如果已经初始化过，禁止再次调用
+    const settings = await c.env.luna_web_store
+      .prepare("SELECT * FROM settings WHERE key = 'is_initialized'")
+      .first();
+
+    const settingResult = {
+      [settings?.key as string]: Number(settings?.value as number),
+    };
+
+    if (settingResult?.is_initialized === 1) {
+      return c.json(
+        { success: false, error: "System already initialized" },
+        403
+      );
+    }
+
     const { username, password } = await c.req.json();
 
     if (!username || !password) {
@@ -332,16 +366,20 @@ app.post("/create-admin", async (c) => {
     // 使用 bcrypt 加密密码
     const passwordHash = await hashPassword(password);
 
-    const result = await c.env.luna_web_store
-      .prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)")
-      .bind(username, passwordHash)
-      .run();
+    const result = await c.env.luna_web_store.batch([
+      c.env.luna_web_store
+        .prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)")
+        .bind(username, passwordHash),
+      c.env.luna_web_store.prepare(
+        "UPDATE settings SET value = 1 WHERE key = 'is_initialized'"
+      ),
+    ]);
 
     return c.json({
       success: true,
       message: "管理员创建成功",
       data: {
-        id: result.meta.last_row_id,
+        id: result[0].meta.last_row_id,
         username,
       },
     });

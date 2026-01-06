@@ -89,4 +89,5 @@ export interface Settings {
   instagram_url?: string;
   facebook_url?: string;
   logo_url?: string;
+  is_initialized?: boolean;
 }

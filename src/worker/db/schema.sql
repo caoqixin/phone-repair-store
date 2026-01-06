@@ -1,6 +1,15 @@
 -- =========================================================
 -- D1 Database Schema for Phone Repair Shop
 -- =========================================================
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS service_categories;
+DROP TABLE IF EXISTS contacts;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS settings;
+DROP TABLE IF EXISTS carriers;
+DROP TABLE IF EXISTS business_hours;
+DROP TABLE IF EXISTS holidays;
 
 -- =========================================================
 -- 1. 预约表 (Bookings)
@@ -85,7 +94,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
 -- 5. 设置表 (Settings) - KV 存储
 -- =========================================================
 CREATE TABLE IF NOT EXISTS settings (
-  key TEXT PRIMARY KEY,
+  key TEXT UNIQUE,
   value TEXT NOT NULL
 );
 
@@ -142,22 +151,17 @@ INSERT INTO service_categories (name_it, name_cn, slug, "order") VALUES
 
 -- 插入默认服务项目
 INSERT INTO services (category, icon_name, title_it, title_cn, description_it, description_cn, price_display, "order", is_active) VALUES
-('repair', 'Smartphone', 'Riparazione Schermo', '屏幕维修', 'Riparazione professionale dello schermo del telefono', '专业手机屏幕维修服务', 'da €50', 1, 1),
-('repair', 'Battery', 'Sostituzione Batteria', '电池更换', 'Sostituzione rapida della batteria', '快速电池更换服务', 'da €30', 2, 1),
-('repair', 'Droplet', 'Riparazione Danni Liquidi', '进水维修', 'Riparazione danni causati da liquidi', '液体损坏维修', 'da €40', 3, 1),
-('sim', 'CreditCard', 'Attivazione SIM', 'SIM卡激活', 'Attivazione di nuove carte SIM', '新SIM卡激活服务', '€10', 4, 1),
+('repair', 'Smartphone', 'Riparazione Schermo', '屏幕维修', 'Riparazione professionale dello schermo del telefono', '专业手机屏幕维修服务', 'da €60', 1, 1),
+('repair', 'Battery', 'Sostituzione Batteria', '电池更换', 'Sostituzione rapida della batteria', '快速电池更换服务', 'da €40', 2, 1),
+('sim', 'CreditCard', 'Attivazione SIM', 'SIM卡激活', 'Attivazione di nuove carte SIM', '新SIM卡激活服务', '€20', 4, 1),
 ('sim', 'Phone', 'Ricarica Telefonica', '话费充值', 'Ricarica per tutte le compagnie', '支持所有运营商充值', '-', 5, 1),
-('shipping', 'Truck', 'Servizio Spedizioni', '快递服务', 'Spedizioni nazionali e internazionali', '国内国际快递服务', '-', 6, 1),
+('shipping', 'Truck', 'Servizio Spedizioni', '快递服务', 'Spedizioni nazionali e internazionali', '国内快递服务', '-', 6, 1),
 ('money', 'Wallet', 'Pagamento Bollette', '代缴费用', 'Pagamento di bollette e servizi', '代缴各类账单服务', '-', 7, 1);
 
 -- 插入默认快递公司
 INSERT INTO carriers (name, tracking_url, "order", is_active) VALUES
-('DHL', 'https://www.dhl.com/it-it/home/tracking.html?tracking-id=', 1, 1),
 ('UPS', 'https://www.ups.com/track?tracknum=', 2, 1),
-('FedEx', 'https://www.fedex.com/fedextrack/?trknbr=', 3, 1),
-('Poste Italiane', 'https://www.poste.it/cerca/index.html#/risultati-spedizioni/', 4, 1),
-('BRT', 'https://vas.brt.it/vas/sped_numsped_par.hsm?referer=sped_numsped_par.htm&Nspediz=', 5, 1),
-('GLS', 'https://gls-group.com/IT/it/ricerca-spedizione?match=', 6, 1);
+('BRT', 'https://vas.brt.it/vas/sped_numsped_par.hsm?referer=sped_numsped_par.htm&Nspediz=', 5, 1);
 
 -- 插入默认营业时间 (周一到周日)
 INSERT INTO business_hours (day_of_week, is_open, morning_open, morning_close, afternoon_open, afternoon_close) VALUES
@@ -171,15 +175,15 @@ INSERT INTO business_hours (day_of_week, is_open, morning_open, morning_close, a
 
 -- 插入默认系统设置 (新增字段)
 INSERT INTO settings (key, value) VALUES
-('shop_name', 'Phone Repair Shop'),
-('address', 'Via Example 123, Milano'),
-('phone', '+39 123 456 7890'),
-('email', 'info@example.com'),
+('shop_name', 'Luna Tech'),
+('address', 'Via Ferrarese 149/D, 40128, Bologna'),
+('phone', '+39 331 423 8522'),
+('email', 'lunariparazione@gmail.com'),
 ('p_iva', 'IT12345678901'),
 ('website_description_it', 'Riparazione professionale di smartphone e tablet'),
 ('website_description_cn', '专业智能手机和平板电脑维修'),
-('opening_hours', 'Lun-Sab: 9:00-19:00'),
 ('announcement_it', 'Benvenuti nel nostro negozio!'),
 ('announcement_cn', '欢迎光临我们的店铺!'),
-('booking_interval_minutes', '30'),
-('max_bookings_per_day', '20');
+('booking_interval_minutes', '60'),
+('max_bookings_per_day', '5'),
+('is_initialized', 0);

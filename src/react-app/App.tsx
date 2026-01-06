@@ -20,6 +20,9 @@ import { aboutLoader } from "./loader/about";
 import { serviceLoader } from "./loader/service";
 import { loginAction } from "./actions/login";
 import { dashboardLoader } from "./loader/dashboard";
+import Setup from "./pages/admin/Setup";
+import { setupLoader } from "./loader/setup";
+import { setupAction } from "./actions/setup";
 
 // 定义路由配置 (Data Router)
 // 将 router 定义在组件外部，避免重渲染时重建实例
@@ -61,6 +64,12 @@ const router = createBrowserRouter([
     // 后台管理区域 - 独立路由 (不使用前台 Layout)
     path: "/admin",
     children: [
+      {
+        path: "setup",
+        element: <Setup />,
+        loader: setupLoader,
+        action: setupAction,
+      },
       {
         path: "login",
         loader: loginLoader,
