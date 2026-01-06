@@ -9,12 +9,43 @@ import { sendEmail } from "../lib/email";
 const app = new Hono<{ Bindings: Env }>();
 
 // 辅助函数：格式化时间为意大利格式
-const formatItalianDate = (isoString: string) => {
-  if (!isoString) return "";
-  return new Date(isoString).toLocaleString("it-IT", {
+const formatItalianDate = (
+  dateInput: string | number | Date | null | undefined
+) => {
+  if (!dateInput) return "Data non disponibile"; // 防止空值导致的 1970
+
+  let date: Date;
+
+  // 1. 如果是数字（时间戳）
+  if (typeof dateInput === "number") {
+    // 判断是秒还是毫秒：如果小于 100 亿，通常是秒，需要 * 1000
+    date = new Date(dateInput < 10000000000 ? dateInput * 1000 : dateInput);
+  }
+  // 2. 如果是字符串
+  else if (typeof dateInput === "string") {
+    // 尝试修复常见的 SQL 格式 "YYYY-MM-DD HH:MM:SS" -> "YYYY-MM-DDTHH:MM:SS"
+    const isoString = dateInput.replace(" ", "T");
+    date = new Date(isoString);
+  }
+  // 3. 如果已经是 Date 对象
+  else {
+    date = dateInput;
+  }
+
+  // 检查是否有效
+  if (isNaN(date.getTime())) {
+    console.error("Invalid date input:", dateInput);
+    return "Data non valida";
+  }
+
+  return date.toLocaleString("it-IT", {
     timeZone: "Europe/Rome",
-    dateStyle: "full",
-    timeStyle: "short",
+    weekday: "long", // mercoledì
+    year: "numeric", // 2026
+    month: "long", // gennaio
+    day: "numeric", // 21
+    hour: "2-digit", // 12
+    minute: "2-digit", // 05
   });
 };
 
