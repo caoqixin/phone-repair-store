@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authMiddleware } from "../middleware/auth";
+import { sendEmail } from "../lib/email";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -52,6 +53,21 @@ app.post("/", async (c) => {
       .prepare("INSERT INTO contacts (name, email, message) VALUES (?, ?, ?)")
       .bind(name, email, message)
       .run();
+
+    // 发送回执
+    if (email) {
+      c.executionCtx.waitUntil(
+        sendEmail({
+          to: email,
+          type: "CONTACT_RECEIPT",
+          props: {
+            customerName: name,
+            message: message,
+          },
+          env: c.env,
+        })
+      );
+    }
 
     return c.json(
       {

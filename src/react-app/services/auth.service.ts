@@ -466,11 +466,13 @@ export async function apiPut<T = any>(
 
 export async function apiDelete<T = any>(
   url: string,
+  data?: any,
   options?: RequestInit
 ): Promise<T> {
   const response = await authenticatedFetch(url, {
     ...options,
     method: "DELETE",
+    body: data ? JSON.stringify(data) : undefined,
   });
 
   if (!response.ok) {

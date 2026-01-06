@@ -168,7 +168,7 @@ const Booking: React.FC = () => {
                 {t("booking.form.issue", "Problem")}
               </label>
               <input
-                name="issueDescription"
+                name="problemDescription"
                 type="text"
                 required
                 placeholder={t(
@@ -312,14 +312,12 @@ const Booking: React.FC = () => {
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t("booking.form.email", "Email")}{" "}
-                  <span className="text-slate-400 font-normal">
-                    ({t("common.optional", "Opzionale")})
-                  </span>
+                  {t("booking.form.email", "Email")}
                 </label>
                 <input
                   name="email"
                   type="email"
+                  required
                   className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
                 />
               </div>

@@ -17,10 +17,16 @@ export const AppointmentsView = ({
 }: AppointmentsViewProps) => {
   const [loadingId, setLoadingId] = useState<number | null>(null);
 
-  const updateStatus = async (id: number, status: string) => {
+  const updateStatus = async (
+    id: number,
+    status: string,
+    email: string,
+    time: number,
+    customerName: string
+  ) => {
     setLoadingId(id);
     try {
-      await apiPut(`/bookings/${id}`, { status });
+      await apiPut(`/bookings/${id}`, { status, email, time, customerName });
       showToast("预约状态已更新");
       refresh();
     } catch (e) {
@@ -30,10 +36,15 @@ export const AppointmentsView = ({
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (
+    id: number,
+    email: string,
+    bookingTime: number,
+    customerName: string
+  ) => {
     if (!window.confirm("确定删除此预约?")) return;
     try {
-      await apiDelete(`/bookings/${id}`);
+      await apiDelete(`/bookings/${id}`, { email, bookingTime, customerName });
       showToast("预约已删除");
       refresh();
     } catch (e) {
@@ -127,7 +138,15 @@ export const AppointmentsView = ({
                       {app.status === "pending" && (
                         <button
                           disabled={loadingId === app.id}
-                          onClick={() => updateStatus(app.id, "confirmed")}
+                          onClick={() =>
+                            updateStatus(
+                              app.id,
+                              "confirmed",
+                              app.email,
+                              app.booking_time,
+                              app.customer_name
+                            )
+                          }
                           className="bg-primary-50 text-primary-700 hover:bg-primary-100 p-2 rounded-lg transition-colors disabled:opacity-50"
                           title="确认预约"
                         >
@@ -139,7 +158,14 @@ export const AppointmentsView = ({
                         </button>
                       )}
                       <button
-                        onClick={() => handleDelete(app.id)}
+                        onClick={() =>
+                          handleDelete(
+                            app.id,
+                            app.email,
+                            app.booking_time,
+                            app.customer_name
+                          )
+                        }
                         className="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-lg transition-colors"
                         title="删除预约"
                       >

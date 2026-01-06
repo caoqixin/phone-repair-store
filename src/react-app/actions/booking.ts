@@ -12,7 +12,7 @@ export async function bookingAction({ request }: ActionFunctionArgs) {
     email: data.email,
     phoneNumber: data.phoneNumber,
     deviceModel: data.deviceModel,
-    problemDescription: data.issueDescription,
+    problemDescription: data.problemDescription,
     bookingTime: bookingTime,
     status: "pending",
   };

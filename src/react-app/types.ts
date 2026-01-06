@@ -10,6 +10,7 @@ export interface Appointment {
   id: number;
   customer_name: string;
   phone_number: string;
+  email: string;
   device_model: string;
   problem_description?: string;
   booking_time: number;

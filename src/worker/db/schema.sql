@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS bookings (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   customer_name TEXT NOT NULL,
   phone_number TEXT NOT NULL,
+  email TEXT NOT NULL,
   device_model TEXT NOT NULL,
   problem_description TEXT,
   booking_time INTEGER NOT NULL,
