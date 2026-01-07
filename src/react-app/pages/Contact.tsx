@@ -312,7 +312,10 @@ const Contact: React.FC = () => {
                 <div className="flex justify-center">
                   <Turnstile
                     siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-                    options={{ theme: "light" }} // 可选：根据您的设计调整
+                    options={{
+                      theme: "light",
+                      language: i18n.language == "zh" ? "zh-cn" : i18n.language,
+                    }}
                   />
                 </div>
                 <button

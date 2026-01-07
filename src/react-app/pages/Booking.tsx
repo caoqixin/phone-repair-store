@@ -210,7 +210,7 @@ const Booking: React.FC = () => {
           {/* Custom Date Picker (Horizontal Scroll) */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-slate-700 mb-3">
-              {t("booking.select_date", "Seleziona Giorno")}
+              {t("booking.form.select_date", "Seleziona Giorno")}
             </label>
             <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide snap-x">
               {dateList.map((date) => (
@@ -246,7 +246,7 @@ const Booking: React.FC = () => {
             }`}
           >
             <label className="block text-sm font-medium text-slate-700 mb-3">
-              {t("booking.select_time", "Orario")}
+              {t("booking.form.select_time", "Orario")}
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-3">
               {timeSlots.map((time) => (
@@ -269,7 +269,11 @@ const Booking: React.FC = () => {
             </div>
             {!selectedDate && (
               <p className="text-xs text-amber-600 mt-2 font-medium animate-pulse">
-                * {t("booking.select_date_first", "Seleziona prima una data")}
+                *{" "}
+                {t(
+                  "booking.form.select_date_first",
+                  "Seleziona prima una data"
+                )}
               </p>
             )}
           </div>
@@ -327,7 +331,13 @@ const Booking: React.FC = () => {
         </section>
 
         <div className="mb-6 flex justify-center">
-          <Turnstile siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY} />
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            options={{
+              language: i18n.language == "zh" ? "zh-cn" : i18n.language,
+              theme: "light",
+            }}
+          />
         </div>
 
         {/* Submit Button */}
@@ -347,10 +357,10 @@ const Booking: React.FC = () => {
             {isSubmitting ? (
               <span className="flex items-center justify-center gap-2">
                 <Loader2 className="animate-spin" />
-                Processing...
+                {t("booking.form.submitting")}
               </span>
             ) : (
-              t("booking.submit_btn", "Conferma Prenotazione")
+              t("booking.form.submit", "Conferma Prenotazione")
             )}
           </button>
         </div>
