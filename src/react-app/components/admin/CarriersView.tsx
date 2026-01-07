@@ -1,20 +1,18 @@
 import { useState } from "react";
 import { Carrier } from "../../types";
 import { apiDelete, apiPost, apiPut } from "../../services/auth.service";
-import { Edit, Package, Plus, Trash2, X } from "lucide-react";
-import { ToastType } from "../ToastProvider";
+import { Edit, Loader2, Package, Plus, Trash2, X } from "lucide-react";
+import { useToast } from "../ToastProvider";
+import { useLoaderData, useNavigation, useRevalidator } from "react-router";
+import { CarrierData } from "../../loader/carriers";
 
-interface CarriersViewProps {
-  data: Carrier[];
-  refresh: () => void;
-  showToast: (msg: string, type?: ToastType) => void;
-}
+export const CarriersView = () => {
+  const { showToast } = useToast();
+  const revalidator = useRevalidator();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+  const { carriers } = useLoaderData() as CarrierData;
 
-export const CarriersView = ({
-  data,
-  refresh,
-  showToast,
-}: CarriersViewProps) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Carrier | null>(null);
   const [form, setForm] = useState<Partial<Carrier>>({});
@@ -35,7 +33,7 @@ export const CarriersView = ({
       }
       setModalOpen(false);
       showToast("快递公司已保存");
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       showToast("保存失败", "error");
     }
@@ -46,11 +44,19 @@ export const CarriersView = ({
     try {
       await apiDelete(`/carriers/${id}`);
       showToast("快递公司已删除");
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       showToast("删除失败", "error");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="size-8 text-primary-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -75,7 +81,7 @@ export const CarriersView = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.length === 0 ? (
+            {carriers.length === 0 ? (
               <tr>
                 <td
                   colSpan={4}
@@ -85,7 +91,7 @@ export const CarriersView = ({
                 </td>
               </tr>
             ) : (
-              data.map((carrier: Carrier) => (
+              carriers.map((carrier: Carrier) => (
                 <tr
                   key={carrier.id}
                   className="hover:bg-slate-50 transition-colors"

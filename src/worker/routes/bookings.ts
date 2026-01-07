@@ -172,25 +172,43 @@ app.post("/", async (c) => {
 
 // 更新预约状态（需要认证）
 app.put("/:id", authMiddleware, async (c) => {
+  const id = c.req.param("id");
+  const { status, email, time, customerName } = await c.req.json();
   try {
-    const id = c.req.param("id");
-    const { status, email, time, customerName } = await c.req.json();
+    // 构建更新字段
+    const updates: string[] = [];
+    const params: any[] = [];
 
-    // 验证状态值
-    const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
-    if (!status || !validStatuses.includes(status)) {
-      return c.json(
-        {
-          success: false,
-          error: "无效的状态值",
-        },
-        400
-      );
+    if (status) {
+      // 验证状态值
+      const validStatuses = ["pending", "confirmed", "completed", "cancelled"];
+      if (!status || !validStatuses.includes(status)) {
+        return c.json(
+          {
+            success: false,
+            error: "无效的状态值",
+          },
+          400
+        );
+      }
+
+      updates.push("status = ?");
+      params.push(status);
     }
 
+    if (time) {
+      updates.push("booking_time = ?");
+      params.push(time);
+    }
+
+    params.push(id);
+
+    // 执行更新
+    const query = `UPDATE bookings SET ${updates.join(", ")} WHERE id = ?`;
+
     const result = await c.env.luna_web_store
-      .prepare("UPDATE bookings SET status = ? WHERE id = ?")
-      .bind(status, id)
+      .prepare(query)
+      .bind(...params)
       .run();
 
     if (result.meta.changes === 0) {

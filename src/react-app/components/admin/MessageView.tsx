@@ -1,27 +1,34 @@
+import { useLoaderData, useNavigation, useRevalidator } from "react-router";
 import { apiPut } from "../../services/auth.service";
 import { ContactMessage } from "../../types";
-import { ToastType } from "../ToastProvider";
+import { useToast } from "../ToastProvider";
+import { MessageData } from "../../loader/message";
+import { Loader2 } from "lucide-react";
 
-interface MessagesViewProps {
-  data: ContactMessage[];
-  refresh: () => void;
-  showToast: (msg: string, type?: ToastType) => void;
-}
+export const MessagesView = () => {
+  const { showToast } = useToast();
+  const revalidator = useRevalidator();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+  const { messages } = useLoaderData() as MessageData;
 
-export const MessagesView = ({
-  data,
-  refresh,
-  showToast,
-}: MessagesViewProps) => {
   const markAsRead = async (id: number) => {
     try {
       await apiPut(`/contacts/${id}/read`, {});
       showToast("已标记为已读");
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       showToast("操作失败", "error");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="size-8 text-primary-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -37,7 +44,7 @@ export const MessagesView = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data.length === 0 ? (
+            {messages.length === 0 ? (
               <tr>
                 <td
                   colSpan={4}
@@ -47,7 +54,7 @@ export const MessagesView = ({
                 </td>
               </tr>
             ) : (
-              data.map((msg: ContactMessage) => (
+              messages.map((msg: ContactMessage) => (
                 <tr
                   key={msg.id}
                   className={`hover:bg-slate-50 ${

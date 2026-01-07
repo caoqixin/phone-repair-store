@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BusinessHour, Holiday } from "../../types";
-import { ToastType } from "../ToastProvider";
+import { useToast } from "../ToastProvider";
 import { apiDelete, apiPost, apiPut } from "../../services/auth.service";
 import {
   AlertCircle,
@@ -16,23 +16,17 @@ import {
   X,
 } from "lucide-react";
 import { Section } from "../Section";
+import { useLoaderData, useNavigation, useRevalidator } from "react-router";
+import { SettingsData } from "../../loader/settings";
 
-interface SettingsViewProps {
-  data: Record<string, string>;
-  businessHours: BusinessHour[];
-  holidays: Holiday[];
-  refresh: () => void;
-  showToast: (msg: string, type?: ToastType) => void;
-}
+export const SettingsView = () => {
+  const { showToast } = useToast();
+  const revalidator = useRevalidator();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+  const { settings, businessHours, holidays } = useLoaderData() as SettingsData;
 
-export const SettingsView = ({
-  data,
-  businessHours,
-  holidays,
-  refresh,
-  showToast,
-}: SettingsViewProps) => {
-  const [formData, setFormData] = useState<Record<string, string>>(data);
+  const [formData, setFormData] = useState<Record<string, string>>(settings);
   const [hours, setHours] = useState<BusinessHour[]>(businessHours);
   const [holidaysList, setHolidaysList] = useState<Holiday[]>(holidays);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,11 +41,11 @@ export const SettingsView = ({
   const dayNames = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
 
   useEffect(() => {
-    if (!hasLoaded && Object.keys(data).length > 0) {
-      setFormData(data);
+    if (!hasLoaded && Object.keys(settings).length > 0) {
+      setFormData(settings);
       setHasLoaded(true);
     }
-  }, [data, hasLoaded]);
+  }, [settings, hasLoaded]);
 
   useEffect(() => {
     setHours(businessHours);
@@ -96,7 +90,7 @@ export const SettingsView = ({
 
       await Promise.all([...updatePromises, ...hoursPromises]);
       showToast("设置已保存");
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       console.error("Save settings error:", error);
       showToast("保存失败", "error");
@@ -118,7 +112,7 @@ export const SettingsView = ({
       showToast("节假日已添加");
       setHolidayModalOpen(false);
       setHolidayForm({ name: "", start_date: "", end_date: "" });
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       showToast("添加失败", "error");
     }
@@ -129,11 +123,19 @@ export const SettingsView = ({
     try {
       await apiDelete(`/holidays/${id}`);
       showToast("节假日已删除");
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       showToast("删除失败", "error");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="size-8 text-primary-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <>

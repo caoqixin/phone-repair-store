@@ -8,7 +8,6 @@ import Services from "./pages/Services";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Login from "./pages/admin/Login";
-import Dashboard from "./pages/admin/Dashboard";
 import { authMiddleware } from "./middleware/auth";
 import { loginLoader } from "./loader/login";
 import { layoutLoader } from "./loader/layout";
@@ -19,10 +18,21 @@ import { contactAction } from "./actions/contact";
 import { aboutLoader } from "./loader/about";
 import { serviceLoader } from "./loader/service";
 import { loginAction } from "./actions/login";
-import { dashboardLoader } from "./loader/dashboard";
 import Setup from "./pages/admin/Setup";
 import { setupLoader } from "./loader/setup";
 import { setupAction } from "./actions/setup";
+import AdminLayout from "./components/admin/AdminLayout";
+import { asideLoader } from "./loader/aside";
+import { AppointmentsView } from "./components/admin/AppointmentsView";
+import { ServicesView } from "./components/admin/ServicesView";
+import { CarriersView } from "./components/admin/CarriersView";
+import { MessagesView } from "./components/admin/MessageView";
+import { SettingsView } from "./components/admin/SettingsView";
+import { appointmentsLoader } from "./loader/appointments";
+import { servicesLoader } from "./loader/services";
+import { carriersLoader } from "./loader/carriers";
+import { messageLoader } from "./loader/message";
+import { settingsLoader } from "./loader/settings";
 
 // 定义路由配置 (Data Router)
 // 将 router 定义在组件外部，避免重渲染时重建实例
@@ -79,8 +89,39 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         middleware: [authMiddleware],
-        loader: dashboardLoader,
-        element: <Dashboard />,
+        loader: asideLoader,
+        element: <AdminLayout />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="appointments" replace />,
+          },
+          {
+            path: "appointments",
+            loader: appointmentsLoader,
+            element: <AppointmentsView />,
+          },
+          {
+            path: "services",
+            loader: servicesLoader,
+            element: <ServicesView />,
+          },
+          {
+            path: "carriers",
+            loader: carriersLoader,
+            element: <CarriersView />,
+          },
+          {
+            path: "messages",
+            loader: messageLoader,
+            element: <MessagesView />,
+          },
+          {
+            path: "settings",
+            loader: settingsLoader,
+            element: <SettingsView />,
+          },
+        ],
       },
       // 访问 /admin 时默认跳转到登录页
       {

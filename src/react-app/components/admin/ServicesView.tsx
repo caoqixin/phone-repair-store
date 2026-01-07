@@ -1,22 +1,18 @@
 import { useState } from "react";
 import { ServiceCategory, ServiceItem } from "../../types";
 import { apiDelete, apiPost, apiPut } from "../../services/auth.service";
-import { Edit, Plus, Settings, Trash2, X } from "lucide-react";
-import { ToastType } from "../ToastProvider";
+import { Edit, Loader2, Plus, Settings, Trash2, X } from "lucide-react";
+import { useToast } from "../ToastProvider";
+import { useLoaderData, useNavigation, useRevalidator } from "react-router";
+import { ServicesData } from "../../loader/services";
 
-interface ServicesViewProps {
-  data: ServiceItem[];
-  categories: ServiceCategory[];
-  refresh: () => void;
-  showToast: (msg: string, type?: ToastType) => void;
-}
+export const ServicesView = () => {
+  const { showToast } = useToast();
+  const revalidator = useRevalidator();
+  const navigation = useNavigation();
+  const isLoading = navigation.state === "loading";
+  const { services, categories } = useLoaderData() as ServicesData;
 
-export const ServicesView = ({
-  data,
-  categories,
-  refresh,
-  showToast,
-}: ServicesViewProps) => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ServiceItem | null>(null);
   const [form, setForm] = useState<Partial<ServiceItem>>({});
@@ -49,7 +45,7 @@ export const ServicesView = ({
       }
       setModalOpen(false);
       showToast("服务已保存");
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       showToast("保存失败", "error");
     }
@@ -60,11 +56,19 @@ export const ServicesView = ({
     try {
       await apiDelete(`/services/${id}`);
       showToast("服务已删除");
-      refresh();
+      revalidator.revalidate();
     } catch (error) {
       showToast("删除失败", "error");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="size-8 text-primary-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -79,7 +83,7 @@ export const ServicesView = ({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {data.map((s: ServiceItem) => {
+        {services.map((s: ServiceItem) => {
           const category = categories.find(
             (c: ServiceCategory) => c.slug === s.category
           );
