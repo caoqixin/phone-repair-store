@@ -8,6 +8,7 @@ import {
   AlertCircle,
   User,
 } from "lucide-react";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { Form, useActionData, useNavigation } from "react-router";
 
 // 生成未来 14 天的日期数组，自动适配当前语言
@@ -324,6 +325,10 @@ const Booking: React.FC = () => {
             </div>
           </div>
         </section>
+
+        <div className="mb-6 flex justify-center">
+          <Turnstile siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY} />
+        </div>
 
         {/* Submit Button */}
         <div className="pt-4">

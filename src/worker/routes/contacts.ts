@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { authMiddleware } from "../middleware/auth";
 import { sendEmail } from "../lib/email";
+import { verifyTurnstile } from "../lib/turnstile";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -24,7 +25,13 @@ app.get("/", authMiddleware, async (c) => {
 // 提交留言（公开接口）
 app.post("/", async (c) => {
   try {
-    const { name, email, message } = await c.req.json();
+    const { name, email, message, token } = await c.req.json();
+
+    const isVerified = await verifyTurnstile(token, c.env.TURNSTILE_SECRET_KEY);
+
+    if (!isVerified) {
+      return c.json({ success: false, error: "Invalid captcha token" }, 403);
+    }
 
     // 验证必填字段
     if (!name || !email || !message) {

@@ -10,6 +10,7 @@ export async function contactAction({ request }: ActionFunctionArgs) {
     name: data.name,
     email: data.email,
     message: data.message,
+    token: data["cf-turnstile-response"],
   };
 
   try {

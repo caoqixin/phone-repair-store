@@ -15,6 +15,7 @@ export async function bookingAction({ request }: ActionFunctionArgs) {
     problemDescription: data.problemDescription,
     bookingTime: bookingTime,
     status: "pending",
+    token: data["cf-turnstile-response"],
   };
 
   try {

@@ -18,6 +18,7 @@ import {
   useNavigation,
 } from "react-router";
 import { ContactData } from "../loader/contact";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 const HoursRow = ({
   label,
@@ -306,6 +307,12 @@ const Contact: React.FC = () => {
                     rows={5}
                     required
                     className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-primary-200"
+                  />
+                </div>
+                <div className="flex justify-center">
+                  <Turnstile
+                    siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+                    options={{ theme: "light" }} // 可选：根据您的设计调整
                   />
                 </div>
                 <button
