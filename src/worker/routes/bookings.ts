@@ -100,7 +100,14 @@ app.post("/", async (c) => {
       deviceModel,
       problemDescription,
       bookingTime,
+      token,
     } = await c.req.json();
+
+    const isVerified = await verifyTurnstile(token, c.env.TURNSTILE_SECRET_KEY);
+
+    if (!isVerified) {
+      return c.json({ success: false, error: "Invalid captcha token" }, 403);
+    }
 
     // 验证必填字段
     if (
@@ -174,13 +181,8 @@ app.post("/", async (c) => {
 // 更新预约状态（需要认证）
 app.put("/:id", authMiddleware, async (c) => {
   const id = c.req.param("id");
-  const { status, email, time, customerName, token } = await c.req.json();
+  const { status, email, time, customerName } = await c.req.json();
 
-  const isVerified = await verifyTurnstile(token, c.env.TURNSTILE_SECRET_KEY);
-
-  if (!isVerified) {
-    return c.json({ success: false, error: "Invalid captcha token" }, 403);
-  }
   try {
     // 构建更新字段
     const updates: string[] = [];
