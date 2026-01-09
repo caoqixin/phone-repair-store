@@ -6,4 +6,17 @@ import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
   plugins: [react(), cloudflare(), tailwindcss(), svgr()],
+  ssr: {
+    noExternal: ["lucide-react"],
+  },
+  build: {
+    ssr: true,
+    minify: true,
+    cssMinify: true,
+    rollupOptions: {
+      output: {
+        format: "esm",
+      },
+    },
+  },
 });

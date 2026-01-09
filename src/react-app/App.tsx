@@ -2,37 +2,8 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
 import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import Booking from "./pages/Booking";
-import Services from "./pages/Services";
-import About from "./pages/About";
-import Contact from "./pages/Contact";
-import Login from "./pages/admin/Login";
 import { authMiddleware } from "./middleware/auth";
-import { loginLoader } from "./loader/login";
 import { layoutLoader } from "./loader/layout";
-import { homeLoader } from "./loader/home";
-import { bookingAction } from "./actions/booking";
-import { contactLoader } from "./loader/contact";
-import { contactAction } from "./actions/contact";
-import { aboutLoader } from "./loader/about";
-import { serviceLoader } from "./loader/service";
-import { loginAction } from "./actions/login";
-import Setup from "./pages/admin/Setup";
-import { setupLoader } from "./loader/setup";
-import { setupAction } from "./actions/setup";
-import AdminLayout from "./components/admin/AdminLayout";
-import { asideLoader } from "./loader/aside";
-import { AppointmentsView } from "./components/admin/AppointmentsView";
-import { ServicesView } from "./components/admin/ServicesView";
-import { CarriersView } from "./components/admin/CarriersView";
-import { MessagesView } from "./components/admin/MessageView";
-import { SettingsView } from "./components/admin/SettingsView";
-import { appointmentsLoader } from "./loader/appointments";
-import { servicesLoader } from "./loader/services";
-import { carriersLoader } from "./loader/carriers";
-import { messageLoader } from "./loader/message";
-import { settingsLoader } from "./loader/settings";
 
 // 定义路由配置 (Data Router)
 // 将 router 定义在组件外部，避免重渲染时重建实例
@@ -44,29 +15,58 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        loader: homeLoader,
-        element: <Home />,
+        lazy: async () => {
+          const [Component, loader] = await Promise.all([
+            import("./pages/Home"),
+            import("./loader/home"),
+          ]);
+          return { Component: Component.default, loader: loader.homeLoader };
+        },
       },
       {
         path: "/services",
-        loader: serviceLoader,
-        element: <Services />,
+        lazy: async () => {
+          const [Component, loader] = await Promise.all([
+            import("./pages/Services"),
+            import("./loader/service"),
+          ]);
+          return { Component: Component.default, loader: loader.serviceLoader };
+        },
       },
       {
         path: "/booking",
-        action: bookingAction,
-        element: <Booking />,
+        lazy: async () => {
+          const [Component, action] = await Promise.all([
+            import("./pages/Booking"),
+            import("./actions/booking"),
+          ]);
+          return { Component: Component.default, action: action.bookingAction };
+        },
       },
       {
         path: "/contact",
-        loader: contactLoader,
-        action: contactAction,
-        element: <Contact />,
+        lazy: async () => {
+          const [Component, loader, action] = await Promise.all([
+            import("./pages/Contact"),
+            import("./loader/contact"),
+            import("./actions/contact"),
+          ]);
+          return {
+            Component: Component.default,
+            loader: loader.contactLoader,
+            action: action.contactAction,
+          };
+        },
       },
       {
         path: "/about",
-        loader: aboutLoader,
-        element: <About />,
+        lazy: async () => {
+          const [Component, loader] = await Promise.all([
+            import("./pages/About"),
+            import("./loader/about"),
+          ]);
+          return { Component: Component.default, loader: loader.aboutLoader };
+        },
       },
     ],
   },
@@ -76,21 +76,47 @@ const router = createBrowserRouter([
     children: [
       {
         path: "setup",
-        element: <Setup />,
-        loader: setupLoader,
-        action: setupAction,
+        lazy: async () => {
+          const [Component, loader, action] = await Promise.all([
+            import("./pages/admin/Setup"),
+            import("./loader/setup"),
+            import("./actions/setup"),
+          ]);
+          return {
+            Component: Component.default,
+            loader: loader.setupLoader,
+            action: action.setupAction,
+          };
+        },
       },
       {
         path: "login",
-        loader: loginLoader,
-        action: loginAction,
-        element: <Login />,
+        lazy: async () => {
+          const [Component, loader, action] = await Promise.all([
+            import("./pages/admin/Login"),
+            import("./loader/login"),
+            import("./actions/login"),
+          ]);
+          return {
+            Component: Component.default,
+            loader: loader.loginLoader,
+            action: action.loginAction,
+          };
+        },
       },
       {
         path: "dashboard",
         middleware: [authMiddleware],
-        loader: asideLoader,
-        element: <AdminLayout />,
+        lazy: async () => {
+          const [Component, loader] = await Promise.all([
+            import("./components/admin/AdminLayout"),
+            import("./loader/aside"),
+          ]);
+          return {
+            Component: Component.default,
+            loader: loader.asideLoader,
+          };
+        },
         children: [
           {
             index: true,
@@ -98,28 +124,68 @@ const router = createBrowserRouter([
           },
           {
             path: "appointments",
-            loader: appointmentsLoader,
-            element: <AppointmentsView />,
+            lazy: async () => {
+              const [Component, loader] = await Promise.all([
+                import("./components/admin/AppointmentsView"),
+                import("./loader/appointments"),
+              ]);
+              return {
+                Component: Component.AppointmentsView,
+                loader: loader.appointmentsLoader,
+              };
+            },
           },
           {
             path: "services",
-            loader: servicesLoader,
-            element: <ServicesView />,
+            lazy: async () => {
+              const [Component, loader] = await Promise.all([
+                import("./components/admin/ServicesView"),
+                import("./loader/services"),
+              ]);
+              return {
+                Component: Component.ServicesView,
+                loader: loader.servicesLoader,
+              };
+            },
           },
           {
             path: "carriers",
-            loader: carriersLoader,
-            element: <CarriersView />,
+            lazy: async () => {
+              const [Component, loader] = await Promise.all([
+                import("./components/admin/CarriersView"),
+                import("./loader/carriers"),
+              ]);
+              return {
+                Component: Component.CarriersView,
+                loader: loader.carriersLoader,
+              };
+            },
           },
           {
             path: "messages",
-            loader: messageLoader,
-            element: <MessagesView />,
+            lazy: async () => {
+              const [Component, loader] = await Promise.all([
+                import("./components/admin/MessageView"),
+                import("./loader/message"),
+              ]);
+              return {
+                Component: Component.MessagesView,
+                loader: loader.messageLoader,
+              };
+            },
           },
           {
             path: "settings",
-            loader: settingsLoader,
-            element: <SettingsView />,
+            lazy: async () => {
+              const [Component, loader] = await Promise.all([
+                import("./components/admin/SettingsView"),
+                import("./loader/settings"),
+              ]);
+              return {
+                Component: Component.SettingsView,
+                loader: loader.settingsLoader,
+              };
+            },
           },
         ],
       },
