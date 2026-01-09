@@ -6,6 +6,7 @@ import { Hono } from "hono";
 import { authMiddleware } from "../middleware/auth";
 import { sendEmail } from "../lib/email";
 import { verifyTurnstile } from "../lib/turnstile";
+import { notify } from "../lib/notify";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -161,6 +162,15 @@ app.post("/", async (c) => {
         })
       );
     }
+
+    c.executionCtx.waitUntil(
+      notify({
+        api_url: c.env.BARK_API,
+        title: "🚀 新预约提醒",
+        message: `来自 ${customerName} 的预约：\n手机型号: ${deviceModel}\n故障: ${problemDescription}\n时间: ${formatItalianDate(bookingTime)}`,
+        group: "Appuntamenti",
+      })
+    );
 
     return c.json(
       {

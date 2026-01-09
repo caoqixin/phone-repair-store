@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { authMiddleware } from "../middleware/auth";
 import { sendEmail } from "../lib/email";
 import { verifyTurnstile } from "../lib/turnstile";
+import { notify } from "../lib/notify";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -75,6 +76,15 @@ app.post("/", async (c) => {
         })
       );
     }
+
+    c.executionCtx.waitUntil(
+      notify({
+        api_url: c.env.BARK_API,
+        title: "🚀 新的消息",
+        message: `来自 ${name} 的消息：${message}, 请前往系统查看`,
+        group: "Contattaci",
+      })
+    );
 
     return c.json(
       {
