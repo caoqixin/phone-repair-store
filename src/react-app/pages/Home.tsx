@@ -62,8 +62,8 @@ const Home: React.FC = () => {
                   businessStatus.type === "open"
                     ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                     : businessStatus.type === "holiday"
-                    ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                    : "bg-red-500/20 text-red-300 border border-red-500/30"
+                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                      : "bg-red-500/20 text-red-300 border border-red-500/30"
                 }`}
               >
                 <span
@@ -71,8 +71,8 @@ const Home: React.FC = () => {
                     businessStatus.type === "open"
                       ? "bg-emerald-400"
                       : businessStatus.type === "holiday"
-                      ? "bg-amber-400"
-                      : "bg-red-400"
+                        ? "bg-amber-400"
+                        : "bg-red-400"
                   }`}
                 />
                 {businessStatus.message}

@@ -36,7 +36,7 @@ const LayoutContent = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/admin/dashboard/login");
+    navigate("/admin/login");
   };
   const menuItems = [
     {

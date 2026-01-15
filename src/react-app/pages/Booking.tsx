@@ -11,53 +11,37 @@ import {
 import { Turnstile } from "@marsidev/react-turnstile";
 import { Form, useActionData, useNavigation } from "react-router";
 
+import dayjs from "dayjs";
+import "dayjs/locale/zh-cn";
+import "dayjs/locale/it";
+
 // 生成未来 14 天的日期数组，自动适配当前语言
 const generateDates = (lang: string) => {
   const dates = [];
-  const now = new Date();
-  const timeZone = "Europe/Rome";
   const locale = lang === "zh" ? "zh-CN" : "it-IT";
 
-  // A. 获取博洛尼亚当前的“年月日”
-  // 使用 Intl.DateTimeFormat 获取基于罗马时区的各个部分，
-  // 从而忽略用户浏览器本地时区（比如中国/美国）的干扰。
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "numeric", // 1-12
-    day: "numeric",
-  });
+  // 1. 获取博洛尼亚当前的时间
+  const todayInBologna = dayjs();
 
-  const parts = formatter.formatToParts(now);
-  const getPart = (type: string) =>
-    parseInt(parts.find((p) => p.type === type)?.value || "0");
+  // 2. 循环生成未来 7 天 (i 从 1 开始，即明天到第七天)
+  for (let i = 1; i <= 8; i++) {
+    const d = todayInBologna.add(i, "day").locale(locale);
 
-  const year = getPart("year");
-  const month = getPart("month") - 1; // JS Date 月份从 0 开始
-  const day = getPart("day");
-
-  // B. 循环生成未来 7 天
-  for (let i = 0; i < 7; i++) {
-    // 构造一个“假装在本地”但实际上数值对应博洛尼亚日期的 Date 对象
-    // 设置为中午 12:00 防止因 DST (夏令时) 切换导致日期跳变
-    const d = new Date(year, month, day + i + 1, 12, 0, 0);
-
-    // 跳过周日 (假设周日不营业)
-    if (d.getDay() === 0) continue;
-
-    // C. 格式化输出
-    // 这里的 fullDate 是 ISO 格式 (YYYY-MM-DD)，发给后端
-    // 后端收到 "2026-01-05" 就知道这是博洛尼亚的 1月5日
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth() + 1).padStart(2, "0");
-    const dd = String(d.getDate()).padStart(2, "0");
-    const fullDate = `${yyyy}-${mm}-${dd}`;
+    // 3. 跳过周日 (day() 返回 0 表示周日)
+    if (d.day() === 0) continue;
 
     dates.push({
-      fullDate: fullDate,
-      dayName: d.toLocaleDateString(locale, { weekday: "short" }), // 周一 / Lun
-      dayNum: d.toLocaleDateString(locale, { day: "2-digit" }), // 05
-      monthName: d.toLocaleDateString(locale, { month: "short" }), // 1月 / Gen
+      // YYYY-MM-DD 格式，直接用于后端交互
+      fullDate: d.format("YYYY-MM-DD"),
+
+      // 星期几 (周一 / Lun)
+      dayName: d.format("ddd"),
+
+      // 日期 (05)
+      dayNum: d.format("DD"),
+
+      // 月份缩写 (1月 / Gen)
+      monthName: d.format("MMM"),
     });
   }
   return dates;

@@ -19,6 +19,9 @@ import {
 } from "react-router";
 import { ContactData } from "../loader/contact";
 import { Turnstile } from "@marsidev/react-turnstile";
+import dayjs from "dayjs";
+import "dayjs/locale/zh-cn";
+import "dayjs/locale/it";
 
 const HoursRow = ({
   label,
@@ -69,7 +72,7 @@ const Contact: React.FC = () => {
   });
 
   // 2. 获取当前是周几 (用于高亮)
-  const todayIndex = new Date().getDay();
+  const todayIndex = dayjs().day();
 
   // 3. 格式化显示的函数
   const formatTime = (h: BusinessHour) => {
@@ -94,11 +97,8 @@ const Contact: React.FC = () => {
   };
 
   const upcomingHolidays = holidays
-    .filter((h) => h.is_active && new Date(h.end_date) >= new Date())
-    .sort(
-      (a, b) =>
-        new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
-    )
+    .filter((h) => h.is_active && dayjs(h.end_date).isSameOrAfter(dayjs()))
+    .sort((a, b) => dayjs(a.start_date).diff(dayjs(b.start_date)))
     .slice(0, 2); // 只显示最近2个
 
   // 5. 星期几的多语言映射
@@ -233,15 +233,17 @@ const Contact: React.FC = () => {
                           {holiday.name}
                         </span>
                         <span className="text-slate-400">
-                          {new Date(holiday.start_date).toLocaleDateString(
-                            i18n.language,
-                            { month: "short", day: "numeric" }
-                          )}
+                          {dayjs(holiday.start_date)
+                            .locale(
+                              i18n.language === "zh" ? "zh-CN" : i18n.language
+                            )
+                            .format("MMM D")}
                           {holiday.start_date !== holiday.end_date &&
-                            ` - ${new Date(holiday.end_date).toLocaleDateString(
-                              i18n.language,
-                              { month: "short", day: "numeric" }
-                            )}`}
+                            ` - ${dayjs(holiday.end_date)
+                              .locale(
+                                i18n.language === "zh" ? "zh-CN" : i18n.language
+                              )
+                              .format("MMM D")}`}
                         </span>
                       </div>
                     ))}

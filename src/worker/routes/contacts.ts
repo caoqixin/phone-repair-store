@@ -81,7 +81,7 @@ app.post("/", async (c) => {
       notify({
         api_url: c.env.BARK_API,
         title: "🚀 新的消息",
-        message: `来自 ${name} 的消息：${message}, 请前往系统查看`,
+        message: `来自 ${name} 的消息：\nname${message}, 请前往系统查看`,
         group: "Contattaci",
       })
     );

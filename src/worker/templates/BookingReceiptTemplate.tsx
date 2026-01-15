@@ -166,7 +166,7 @@ export function BookingReceiptTemplate({
             <Text style={footerText}>
               Luna Tech
               <br />
-              Via Ferrarese 149/D 40128 Bologna | Tel: +393480512647
+              Via Ferrarese 149/D 40128 Bologna | Tel: +393314238522
             </Text>
             <Link href="https://www.lunariparazione.com" style={link}>
               Luna Tech

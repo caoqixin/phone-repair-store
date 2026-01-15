@@ -13,48 +13,54 @@ const app = new Hono<{ Bindings: Env }>();
 // 辅助函数：格式化时间为意大利格式
 const formatItalianDate = (
   dateInput: string | number | Date | null | undefined
-) => {
-  if (!dateInput) return "Data non disponibile"; // 防止空值导致的 1970
+): string => {
+  // 1. 基础防错
+  if (!dateInput) return "Data non disponibile";
 
   let date: Date;
 
-  // 1. 如果是数字（时间戳）
-  if (typeof dateInput === "number") {
-    // 判断是秒还是毫秒：如果小于 100 亿，通常是秒，需要 * 1000
-    date = new Date(dateInput < 10000000000 ? dateInput * 1000 : dateInput);
-  }
-  // 2. 如果是字符串
-  else if (typeof dateInput === "string") {
-    // 尝试修复常见的 SQL 格式 "YYYY-MM-DD HH:MM:SS" -> "YYYY-MM-DDTHH:MM:SS"
-    const isoString = dateInput.replace(" ", "T");
-    date = new Date(isoString);
-  }
-  // 3. 如果已经是 Date 对象
-  else {
+  // 2. 解析逻辑
+  if (dateInput instanceof Date) {
     date = dateInput;
+  } else if (typeof dateInput === "number") {
+    // 自动识别秒(s)和毫秒(ms)
+    date = new Date(dateInput < 10000000000 ? dateInput * 1000 : dateInput);
+  } else if (typeof dateInput === "string") {
+    // 修复 SQL 格式并处理潜在的无效字符串
+    date = new Date(dateInput.replace(" ", "T"));
+  } else {
+    return "Data non valida";
   }
 
-  // 检查是否有效
+  // 3. 检查有效性
   if (isNaN(date.getTime())) {
     console.error("Invalid date input:", dateInput);
     return "Data non valida";
   }
 
-  return date.toLocaleString("it-IT", {
+  // 4. 使用 Intl 对象控制时区和格式
+  // 配置为 24 小时制，并锁定罗马时区
+  const formatter = new Intl.DateTimeFormat("it-IT", {
     timeZone: "Europe/Rome",
-    weekday: "long", // mercoledì
-    year: "numeric", // 2026
-    month: "long", // gennaio
-    day: "numeric", // 21
-    hour: "2-digit", // 12
-    minute: "2-digit", // 05
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
   });
+
+  // 5. 提取各个部分并手动拼接成 DD/MM/YYYY HH:mm
+  const parts = formatter.formatToParts(date);
+  const getPart = (type: string) => parts.find((p) => p.type === type)?.value;
+
+  return `${getPart("day")}/${getPart("month")}/${getPart("year")} ${getPart("hour")}:${getPart("minute")}`;
 };
 
 app.get("/", authMiddleware, async (c) => {
   try {
     const { results } = await c.env.luna_web_store
-      .prepare("SELECT * FROM bookings ORDER BY booking_time DESC")
+      .prepare("SELECT * FROM bookings ORDER BY created_at DESC")
       .all();
 
     return c.json({
@@ -115,6 +121,7 @@ app.post("/", async (c) => {
       !customerName ||
       !phoneNumber ||
       !deviceModel ||
+      !problemDescription ||
       !bookingTime ||
       !email
     ) {
@@ -128,7 +135,7 @@ app.post("/", async (c) => {
     }
 
     // 转换时间戳
-    const timestamp = Math.floor(new Date(bookingTime).getTime() / 1000);
+    const timestamp = new Date(bookingTime).getTime();
 
     const result = await c.env.luna_web_store
       .prepare(
@@ -141,7 +148,7 @@ app.post("/", async (c) => {
         email,
         phoneNumber,
         deviceModel,
-        problemDescription || null,
+        problemDescription,
         timestamp,
         "pending"
       )
@@ -155,7 +162,7 @@ app.post("/", async (c) => {
           props: {
             customerName,
             deviceModel,
-            problemDescription,
+            issueDescription: problemDescription,
             bookingTime: formatItalianDate(bookingTime),
           },
           env: c.env,

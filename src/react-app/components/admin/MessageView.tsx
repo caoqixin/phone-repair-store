@@ -4,6 +4,7 @@ import { ContactMessage } from "../../types";
 import { useToast } from "../ToastProvider";
 import { MessageData } from "../../loader/message";
 import { Loader2 } from "lucide-react";
+import dayjs from "dayjs";
 
 export const MessagesView = () => {
   const { showToast } = useToast();
@@ -71,9 +72,9 @@ export const MessagesView = () => {
                     {msg.message}
                   </td>
                   <td className="px-6 py-4 text-xs text-slate-400">
-                    {new Date(msg.created_at * 1000).toLocaleDateString(
-                      "zh-CN"
-                    )}
+                    {dayjs
+                      .unix(messages[0].created_at)
+                      .format("DD/MM/YYYY HH:mm")}
                   </td>
                   <td className="px-6 py-4 text-center">
                     {!msg.is_read ? (

@@ -5,6 +5,7 @@ import { Check, Clock, Edit, Loader2, Trash2, X } from "lucide-react";
 import { useToast } from "../ToastProvider";
 import { useLoaderData, useNavigation, useRevalidator } from "react-router";
 import { AppointmentData } from "../../loader/appointments";
+import dayjs from "dayjs";
 
 export const AppointmentsView = () => {
   const { showToast } = useToast();
@@ -62,7 +63,7 @@ export const AppointmentsView = () => {
       setLoadingId(editingAppointment.id);
       // 组合日期和时间为时间戳
       const dateTimeStr = `${newDate}T${newTime}`;
-      const timestamp = new Date(dateTimeStr).getTime();
+      const timestamp = dayjs(dateTimeStr).valueOf();
 
       if (isNaN(timestamp)) {
         showToast("时间和日期无效", "error");
@@ -70,7 +71,7 @@ export const AppointmentsView = () => {
       }
 
       await apiPut(`/bookings/${editingAppointment.id}`, {
-        time: timestamp / 1000,
+        time: timestamp,
       });
 
       showToast("时间修改成功", "success");
@@ -109,22 +110,13 @@ export const AppointmentsView = () => {
   };
 
   const openEditModal = (appointment: Appointment) => {
-    const dateObj = new Date(
-      appointment.booking_time < 10000000000
-        ? appointment.booking_time * 1000
-        : appointment.booking_time
-    );
+    const date = dayjs(appointment.booking_time);
 
-    // 获取本地年份、月份、日期 (注意 getMonth 从 0 开始)
-    const year = dateObj.getFullYear();
-    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-    const day = String(dateObj.getDate()).padStart(2, "0");
-    const localDate = `${year}-${month}-${day}`;
+    // 获取本地年份、月份、日期
+    const localDate = date.format("YYYY-MM-DD");
 
     // 获取本地时间 HH:mm
-    const hours = String(dateObj.getHours()).padStart(2, "0");
-    const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-    const localTime = `${hours}:${minutes}`;
+    const localTime = date.format("HH:mm");
 
     setNewDate(localDate);
     setNewTime(localTime);
@@ -176,6 +168,9 @@ export const AppointmentsView = () => {
                     <div className="text-slate-500 text-xs mt-0.5">
                       {app.phone_number}
                     </div>
+                    <div className="text-slate-600 text-xs mt-0.5">
+                      {app.email}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-slate-900 font-medium">
@@ -190,9 +185,7 @@ export const AppointmentsView = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-1.5 text-slate-600">
                       <Clock className="size-3.5 text-primary-500" />
-                      {new Date(app.booking_time * 1000).toLocaleString(
-                        "zh-CN"
-                      )}
+                      {dayjs(app.booking_time).format("DD/MM/YYYY HH:mm")}
                     </div>
                   </td>
                   <td className="px-6 py-4">{getStatusBadge(app.status)}</td>
